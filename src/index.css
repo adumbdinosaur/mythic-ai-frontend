@@ -1,11 +1,15 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-:root {
-  --primary: #9333EA;
-  --secondary: #EC4899;
-  --accent: #1E3A8A;
+@theme {
+  --color-primary: #9333EA;
+  --color-primary-dark: #7C3AED;
+  --color-primary-light: #A855F7;
+  --color-secondary: #EC4899;
+  --color-secondary-dark: #DB2777;
+  --color-secondary-light: #F472B6;
+  --color-accent: #1E3A8A;
+  --color-accent-dark: #1E40AF;
+  --color-accent-light: #3B82F6;
 }
 
 body {

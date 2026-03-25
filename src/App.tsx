@@ -6,10 +6,12 @@ import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
 import { DemosPage } from './pages/DemosPage';
-import { TrainingPage } from './pages/TrainingPage';
-import { TrainingJobPage } from './pages/TrainingJobPage';
 import { ConversationsPage } from './pages/ConversationsPage';
 import { SubscriptionPage } from './pages/SubscriptionPage';
+import { SettingsPage } from './pages/SettingsPage';
+// Training pages — kept in codebase, hidden from routing until TRAINING_ENABLED
+// import { TrainingPage } from './pages/TrainingPage';
+// import { TrainingJobPage } from './pages/TrainingJobPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,10 +38,12 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/demos" element={<DemosPage />} />
-            <Route path="/training" element={<TrainingPage />} />
-            <Route path="/training/:id" element={<TrainingJobPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            {/* Training routes hidden — uncomment when TRAINING_ENABLED=true */}
+            {/* <Route path="/training" element={<TrainingPage />} /> */}
+            {/* <Route path="/training/:id" element={<TrainingJobPage />} /> */}
           </Route>
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

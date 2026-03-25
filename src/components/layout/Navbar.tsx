@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { Button } from '../ui/Button';
+import { TIER_LABELS } from '../../types';
 
 interface NavItem {
   to: string;
@@ -27,11 +28,7 @@ const SparkleIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const TrainIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-  </svg>
-);
+// TrainIcon removed — training hidden until TRAINING_ENABLED=true
 
 const HistoryIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
@@ -39,9 +36,10 @@ const HistoryIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const SubIcon: React.FC<{ className?: string }> = ({ className }) => (
+const SettingsIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8} aria-hidden="true">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
   </svg>
 );
 
@@ -49,9 +47,10 @@ const navItems: NavItem[] = [
   { to: '/dashboard', label: 'Dashboard', icon: DashIcon },
   { to: '/chat', label: 'Chat', icon: ChatIcon },
   { to: '/demos', label: 'Demo Models', icon: SparkleIcon },
-  { to: '/training', label: 'Training', icon: TrainIcon },
+  // Training hidden — restore when TRAINING_ENABLED=true on backend
+  // { to: '/training', label: 'Training', icon: TrainIcon },
   { to: '/conversations', label: 'History', icon: HistoryIcon },
-  { to: '/subscription', label: 'Subscription', icon: SubIcon },
+  { to: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
 export const Navbar: React.FC = () => {
@@ -104,9 +103,19 @@ export const Navbar: React.FC = () => {
             <div className="mb-3 px-1">
               <p className="text-sm font-medium text-white truncate">{user.username}</p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
-              <span className="mt-1 inline-block text-xs font-medium capitalize px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">
-                {user.tier}
-              </span>
+              <div className="mt-1 flex items-center gap-2">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">
+                  {TIER_LABELS[user.tier]}
+                </span>
+                {user.tier === 'free' && (
+                  <NavLink
+                    to="/subscription"
+                    className="text-xs text-purple-400 hover:text-purple-300 underline underline-offset-2"
+                  >
+                    Upgrade
+                  </NavLink>
+                )}
+              </div>
             </div>
           )}
           <Button variant="ghost" size="sm" onClick={handleLogout} className="w-full justify-start">

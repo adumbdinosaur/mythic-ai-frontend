@@ -7,43 +7,44 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import type { Tier, TierFeatures } from '../types';
+import { TIER_LABELS } from '../types';
 
 const TIER_DATA: Record<Tier, TierFeatures> = {
   free: {
-    name: 'Free',
+    name: TIER_LABELS.free,
     price: 0,
     features: [
-      '5 training jobs / month',
-      'Up to 2 adapters',
-      '100 chat requests / day',
+      '4k token context window',
+      '5 messages / minute',
       'Community demos access',
+      'Admitted when VIP lane is idle',
     ],
-    limits: { monthly_training_jobs: 5, max_adapters: 2, chat_requests_per_day: 100 },
+    limits: { monthly_training_jobs: 0, max_adapters: 0, chat_requests_per_day: -1 },
+  },
+  plus: {
+    name: TIER_LABELS.plus,
+    price: 5,
+    features: [
+      '8k token context window',
+      '60 requests / minute',
+      'VIP fast lane — no queue wait',
+      'Full demos access',
+      'Conversation history',
+    ],
+    limits: { monthly_training_jobs: 0, max_adapters: 0, chat_requests_per_day: -1 },
   },
   pro: {
-    name: 'Pro',
-    price: 29,
+    name: TIER_LABELS.pro,
+    price: 15,
     features: [
-      '50 training jobs / month',
-      'Up to 20 adapters',
-      '2 000 chat requests / day',
-      'Priority queue',
-      'Webhook support',
+      '16k token context window',
+      '200 requests / minute',
+      'VIP fast lane — highest priority',
+      'Full demos access',
+      'Conversation history',
+      'API access (SillyTavern compatible)',
     ],
-    limits: { monthly_training_jobs: 50, max_adapters: 20, chat_requests_per_day: 2000 },
-  },
-  enterprise: {
-    name: 'Enterprise',
-    price: 199,
-    features: [
-      'Unlimited training jobs',
-      'Unlimited adapters',
-      'Unlimited chat requests',
-      'Dedicated queue slot',
-      'Priority support',
-      'Custom integrations',
-    ],
-    limits: { monthly_training_jobs: -1, max_adapters: -1, chat_requests_per_day: -1 },
+    limits: { monthly_training_jobs: 0, max_adapters: 0, chat_requests_per_day: -1 },
   },
 };
 
@@ -60,7 +61,7 @@ function TierCard({
   onUpgrade: () => void;
   loading: boolean;
 }) {
-  const highlighted = tier === 'pro';
+  const highlighted = tier === 'plus';
   return (
     <div
       className={[
@@ -183,7 +184,7 @@ export const SubscriptionPage: React.FC = () => {
           <div className="flex flex-wrap gap-6 items-center">
             <div>
               <p className="text-xs text-gray-500">Plan</p>
-              <p className="text-xl font-bold text-white capitalize">{currentTier}</p>
+              <p className="text-xl font-bold text-white">{TIER_LABELS[currentTier]}</p>
             </div>
             {subscription && (
               <>
@@ -206,7 +207,7 @@ export const SubscriptionPage: React.FC = () => {
               </>
             )}
             {!subscription && !error && (
-              <p className="text-sm text-gray-400">You're on the Free plan.</p>
+              <p className="text-sm text-gray-400">You're on the {TIER_LABELS.free} plan.</p>
             )}
           </div>
         )}

@@ -18,16 +18,41 @@ export interface TokenResponse {
 
 // ─── User ────────────────────────────────────────────────────────────────────
 
-export type Tier = 'free' | 'pro' | 'enterprise';
+export type Tier = 'free' | 'plus' | 'pro';
+
+export const TIER_LABELS: Record<Tier, string> = {
+  free: 'Kobold',
+  plus: 'Gryphon',
+  pro: 'Dragon',
+};
 
 export interface User {
   id: string;
   email: string;
   username: string;
+  name?: string;
   tier: Tier;
   is_active: boolean;
+  is_verified?: boolean;
   created_at: string;
   updated_at?: string;
+}
+
+// ─── API Keys ────────────────────────────────────────────────────────────────
+
+export interface ApiKey {
+  id: string;
+  name: string;
+  prefix?: string;
+  is_active: boolean;
+  created_at: string;
+  expires_at?: string;
+  last_used_at?: string;
+  request_count: number;
+}
+
+export interface ApiKeyCreated extends ApiKey {
+  key: string; // shown once on creation only
 }
 
 // ─── Chat ────────────────────────────────────────────────────────────────────

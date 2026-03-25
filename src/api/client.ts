@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import type { ApiError } from '../types';
+import { getStoredToken, clearStoredToken } from '../utils/auth-token';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8000',
@@ -9,7 +10,7 @@ export const api = axios.create({
 
 // Attach JWT on every request
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = getStoredToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,7 +22,7 @@ api.interceptors.response.use(
   (res) => res,
   (err: AxiosError<ApiError>) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('access_token');
+      clearStoredToken();
       if (window.location.pathname !== '/login') {
         window.location.href = '/login';
       }

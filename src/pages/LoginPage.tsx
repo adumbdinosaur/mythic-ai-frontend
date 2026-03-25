@@ -20,8 +20,10 @@ export const LoginPage: React.FC = () => {
     setLoading(true);
     try {
       const { data: tokenData } = await authApi.login(email, password);
-      // Store token first so the /users/me call can use it
-      localStorage.setItem('access_token', tokenData.access_token);
+      // Store token in Zustand persist format so API interceptor can read it
+      // (Zustand persist is async, so we manually set localStorage first)
+      const authState = { state: { token: tokenData.access_token, user: null } };
+      localStorage.setItem('mythic-auth', JSON.stringify(authState));
       const { data: user } = await authApi.me();
       setAuth(tokenData.access_token, user);
       navigate('/dashboard', { replace: true });

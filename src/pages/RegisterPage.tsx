@@ -40,7 +40,9 @@ export const RegisterPage: React.FC = () => {
         username: form.username,
         password: form.password,
       });
-      localStorage.setItem('access_token', tokenData.access_token);
+      // Store token in Zustand persist format so API interceptor can read it
+      const authState = { state: { token: tokenData.access_token, user: null } };
+      localStorage.setItem('mythic-auth', JSON.stringify(authState));
       const { data: user } = await authApi.me();
       setAuth(tokenData.access_token, user);
       navigate('/dashboard', { replace: true });

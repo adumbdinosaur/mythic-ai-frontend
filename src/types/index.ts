@@ -20,6 +20,8 @@ export interface TokenResponse {
 
 export type Tier = 'free' | 'plus' | 'pro';
 
+export type Role = 'user' | 'admin' | 'service' | 'support' | 'moderator' | 'editor';
+
 export const TIER_LABELS: Record<Tier, string> = {
   free: 'Kobold',
   plus: 'Gryphon',
@@ -31,6 +33,7 @@ export interface User {
   email: string;
   username: string;
   name?: string;
+  role: Role;
   tier: Tier;
   is_active: boolean;
   is_verified?: boolean;
@@ -208,4 +211,68 @@ export interface Webhook {
 
 export interface ApiError {
   detail: string | { msg: string; type: string }[];
+}
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+
+export interface AdminUser {
+  id: string;
+  email: string;
+  name?: string;
+  role: string;
+  tier: string;
+  is_verified: boolean;
+  is_active: boolean;
+  stripe_customer_id?: string;
+  created_at?: string;
+  subscription?: {
+    id: string;
+    tier: string;
+    status: string;
+    is_active: boolean;
+  } | null;
+}
+
+export interface AdminStats {
+  users: {
+    total: number;
+    verified: number;
+    by_tier: Record<string, number>;
+  };
+  training_jobs: {
+    total: number;
+    completed: number;
+    failed: number;
+    active: number;
+    success_rate: number;
+  };
+  conversations: { total: number };
+  models: { total_active: number };
+  subscriptions: { active: number };
+}
+
+export interface AuditLogEntry {
+  id: string;
+  admin_user_id: string;
+  admin_email?: string;
+  action: string;
+  target_type: string;
+  target_id: string;
+  details?: Record<string, unknown>;
+  ip_address?: string;
+  created_at: string;
+}
+
+export interface PaginatedUsers {
+  users: AdminUser[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface PaginatedAuditLog {
+  entries: AuditLogEntry[];
+  total: number;
+  limit: number;
+  offset: number;
 }

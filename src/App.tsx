@@ -9,6 +9,9 @@ import { DemosPage } from './pages/DemosPage';
 import { ConversationsPage } from './pages/ConversationsPage';
 import { SubscriptionPage } from './pages/SubscriptionPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { AdminDashboardPage } from './pages/AdminDashboardPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminAuditLogPage } from './pages/AdminAuditLogPage';
 // Training pages — kept in codebase, hidden from routing until TRAINING_ENABLED
 // import { TrainingPage } from './pages/TrainingPage';
 // import { TrainingJobPage } from './pages/TrainingJobPage';
@@ -41,6 +44,10 @@ function App() {
             <Route path="/conversations" element={<ConversationsPage />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            {/* Admin routes */}
+            <Route path="/admin" element={<AdminDashboardPage />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
             {/* Training routes hidden — uncomment when TRAINING_ENABLED=true */}
             {/* <Route path="/training" element={<TrainingPage />} /> */}
             {/* <Route path="/training/:id" element={<TrainingJobPage />} /> */}

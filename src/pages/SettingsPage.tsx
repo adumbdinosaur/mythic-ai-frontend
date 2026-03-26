@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { authApi } from '../api/auth';
 import { useAuthStore } from '../stores/authStore';
@@ -277,6 +277,153 @@ function ApiTokensSection() {
   );
 }
 
+// ─── Connected accounts section ───────────────────────────────────────────────
+
+interface LinkedAccountRowProps {
+  label: string;
+  description: string;
+  linked: boolean;
+  onLink: () => void;
+  onUnlink: () => void;
+  linking: boolean;
+  unlinking: boolean;
+}
+
+function LinkedAccountRow({
+  label,
+  description,
+  linked,
+  onLink,
+  onUnlink,
+  linking,
+  unlinking,
+}: LinkedAccountRowProps) {
+  return (
+    <div className="flex items-center justify-between gap-4 py-3 border-b border-white/10 last:border-0">
+      <div className="min-w-0">
+        <p className="text-sm font-medium text-white">{label}</p>
+        <p className="text-xs text-gray-400 mt-0.5">{description}</p>
+      </div>
+      <div className="shrink-0">
+        {linked ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-green-400 font-medium">Connected</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-400 hover:text-red-300"
+              onClick={onUnlink}
+              loading={unlinking}
+            >
+              Unlink
+            </Button>
+          </div>
+        ) : (
+          <Button size="sm" onClick={onLink} loading={linking}>
+            Connect
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LinkedAccountsSection() {
+  const { user, setUser } = useAuthStore();
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+
+  // Handle OAuth redirect result (linked=discord / error=... in URL params)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const linked = params.get('linked');
+    const oauthError = params.get('error');
+    if (linked || oauthError) {
+      // Clear query params from URL without navigating
+      window.history.replaceState({}, '', window.location.pathname);
+      if (linked) {
+        // Refresh user to pick up new discord_id / patreon_id etc.
+        authApi.me().then((res) => setUser(res.data)).catch(() => {});
+      }
+      if (oauthError) {
+        const messages: Record<string, string> = {
+          discord_already_linked: 'That Discord account is already linked to another Mythic AI account.',
+          patreon_already_linked: 'That Patreon account is already linked to another Mythic AI account.',
+          subscribestar_already_linked: 'That SubscribeStar account is already linked to another Mythic AI account.',
+          discord_token_failed: 'Discord authorisation failed. Please try again.',
+          patreon_token_failed: 'Patreon authorisation failed. Please try again.',
+          subscribestar_token_failed: 'SubscribeStar authorisation failed. Please try again.',
+        };
+        setError(messages[oauthError] ?? `OAuth error: ${oauthError}`);
+      }
+    }
+  }, [setUser]);
+
+  const startOAuth = async (initiate: () => Promise<{ data: { redirect_url: string } }>) => {
+    try {
+      const res = await initiate();
+      window.location.href = res.data.redirect_url;
+    } catch (err) {
+      setError(getErrorMessage(err));
+    }
+  };
+
+  const unlinkMutation = (unlinkFn: () => Promise<unknown>) =>
+    useMutation({
+      mutationFn: unlinkFn,
+      onSuccess: () => {
+        authApi.me().then((res) => setUser(res.data)).catch(() => {});
+        queryClient.invalidateQueries({ queryKey: ['me'] });
+      },
+      onError: (err) => setError(getErrorMessage(err)),
+    });
+
+  const discordUnlink = unlinkMutation(authApi.discordUnlink);
+  const patreonUnlink = unlinkMutation(authApi.patreonUnlink);
+  const subscribestarUnlink = unlinkMutation(authApi.subscribestarUnlink);
+
+  return (
+    <Card>
+      <CardHeader
+        title="Connected Accounts"
+        subtitle="Link your social accounts to sync your subscription tier automatically."
+      />
+      {error && (
+        <p className="text-sm text-red-400 mb-4" role="alert">{error}</p>
+      )}
+      <div>
+        <LinkedAccountRow
+          label="Discord"
+          description="Use /chat, /status, and /link commands in Discord servers."
+          linked={!!user?.discord_id}
+          onLink={() => startOAuth(authApi.discordInitiate)}
+          onUnlink={() => discordUnlink.mutate()}
+          linking={false}
+          unlinking={discordUnlink.isPending}
+        />
+        <LinkedAccountRow
+          label="Patreon"
+          description="Automatically sync your Gryphon or Dragon tier from your Patreon pledge."
+          linked={!!user?.patreon_id}
+          onLink={() => startOAuth(authApi.patreonInitiate)}
+          onUnlink={() => patreonUnlink.mutate()}
+          linking={false}
+          unlinking={patreonUnlink.isPending}
+        />
+        <LinkedAccountRow
+          label="SubscribeStar"
+          description="Automatically sync your tier from your SubscribeStar subscription."
+          linked={!!user?.subscribestar_id}
+          onLink={() => startOAuth(authApi.subscribestarInitiate)}
+          onUnlink={() => subscribestarUnlink.mutate()}
+          linking={false}
+          unlinking={subscribestarUnlink.isPending}
+        />
+      </div>
+    </Card>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export const SettingsPage: React.FC = () => (
@@ -288,5 +435,6 @@ export const SettingsPage: React.FC = () => (
     <ProfileSection />
     <PasswordSection />
     <ApiTokensSection />
+    <LinkedAccountsSection />
   </div>
 );

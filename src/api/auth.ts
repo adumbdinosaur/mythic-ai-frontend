@@ -26,4 +26,24 @@ export const authApi = {
 
   revokeApiKey: (id: string) =>
     api.delete(`/api/v1/auth/api-keys/${id}`),
+
+  // ── OAuth account linking ────────────────────────────────────────────────
+
+  discordInitiate: () =>
+    api.get<{ redirect_url: string }>('/api/v1/auth/discord/initiate'),
+
+  discordUnlink: () =>
+    api.delete('/api/v1/auth/discord/unlink'),
+
+  patreonInitiate: () =>
+    api.get<{ redirect_url: string }>('/api/v1/auth/patreon/initiate'),
+
+  patreonUnlink: () =>
+    api.delete('/api/v1/auth/patreon/unlink'),
+
+  subscribestarInitiate: () =>
+    api.get<{ redirect_url: string }>('/api/v1/auth/subscribestar/initiate'),
+
+  subscribestarUnlink: () =>
+    api.delete('/api/v1/auth/subscribestar/unlink'),
 };

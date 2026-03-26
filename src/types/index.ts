@@ -39,6 +39,10 @@ export interface User {
   is_verified?: boolean;
   created_at: string;
   updated_at?: string;
+  // Linked social accounts (null = not linked)
+  discord_id: string | null;
+  patreon_id: string | null;
+  subscribestar_id: string | null;
 }
 
 // ─── API Keys ────────────────────────────────────────────────────────────────

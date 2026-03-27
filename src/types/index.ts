@@ -132,6 +132,7 @@ export interface Character {
   tags: string[];
   avatar_url?: string;
   visibility: CharacterVisibility;
+  context_window: number;
   chat_count: number;
   created_at: string;
   updated_at: string;
@@ -148,6 +149,7 @@ export interface CharacterCreate {
   tags?: string[];
   avatar_url?: string;
   visibility?: CharacterVisibility;
+  context_window?: number;
 }
 
 export interface CharacterUpdate extends Partial<CharacterCreate> {}

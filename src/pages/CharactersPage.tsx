@@ -112,6 +112,7 @@ function CharacterFormModal({
   const [tagsStr, setTagsStr] = useState((initial?.tags ?? []).join(', '));
   const [visibility, setVisibility] = useState<CharacterVisibility>(initial?.visibility ?? 'private');
   const [avatarUrl, setAvatarUrl] = useState(initial?.avatar_url ?? '');
+  const [contextWindow, setContextWindow] = useState(initial?.context_window ?? 4096);
 
   // Reset form when modal opens with different data
   React.useEffect(() => {
@@ -125,6 +126,7 @@ function CharacterFormModal({
       setTagsStr((initial?.tags ?? []).join(', '));
       setVisibility(initial?.visibility ?? 'private');
       setAvatarUrl(initial?.avatar_url ?? '');
+      setContextWindow(initial?.context_window ?? 4096);
     }
   }, [open, initial]);
 
@@ -144,6 +146,7 @@ function CharacterFormModal({
       tags: tags.length ? tags : undefined,
       avatar_url: avatarUrl || undefined,
       visibility,
+      context_window: contextWindow,
     });
   };
 
@@ -225,6 +228,20 @@ function CharacterFormModal({
 
         <Input label="Avatar URL" placeholder="https://..." value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
 
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-300">Context Window: {contextWindow.toLocaleString()} tokens</label>
+          <input
+            type="range"
+            min={512}
+            max={32768}
+            step={512}
+            value={contextWindow}
+            onChange={(e) => setContextWindow(Number(e.target.value))}
+            className="w-full accent-purple-500"
+          />
+          <p className="text-xs text-gray-500">How many tokens of conversation history the model will see. Larger values use more memory but give better context.</p>
+        </div>
+
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit" loading={loading}>{initial ? 'Save Changes' : 'Create Character'}</Button>
@@ -248,6 +265,7 @@ function CharacterChatModal({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
@@ -257,6 +275,7 @@ function CharacterChatModal({
       setMessages([]);
     }
     setInput('');
+    setConversationId(undefined);
   }, [open, character]);
 
   React.useEffect(() => {
@@ -272,7 +291,7 @@ function CharacterChatModal({
     setStreaming(true);
 
     try {
-      const stream = await charactersApi.chatStream(character.id, updated);
+      const stream = await charactersApi.chatStream(character.id, updated, { conversation_id: conversationId });
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let assistantContent = '';
@@ -291,6 +310,11 @@ function CharacterChatModal({
           if (data === '[DONE]') continue;
           try {
             const parsed = JSON.parse(data);
+            // Pick up conversation_id from the final auto-save event
+            if (parsed.conversation_id && !parsed.choices) {
+              setConversationId(parsed.conversation_id);
+              continue;
+            }
             const delta = parsed.choices?.[0]?.delta?.content;
             if (delta) {
               assistantContent += delta;

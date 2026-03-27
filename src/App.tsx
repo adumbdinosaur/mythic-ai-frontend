@@ -6,6 +6,7 @@ import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { ChatPage } from './pages/ChatPage';
 import { DemosPage } from './pages/DemosPage';
+import { CharactersPage } from './pages/CharactersPage';
 import { ConversationsPage } from './pages/ConversationsPage';
 import { SubscriptionPage } from './pages/SubscriptionPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -41,6 +42,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/demos" element={<DemosPage />} />
+            <Route path="/characters" element={<CharactersPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/settings" element={<SettingsPage />} />

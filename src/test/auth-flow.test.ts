@@ -8,7 +8,7 @@
  * 4. Subsequent requests include the Authorization header
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { getStoredToken } from '../utils/auth-token';
 
 describe('Auth Token Persistence Flow', () => {

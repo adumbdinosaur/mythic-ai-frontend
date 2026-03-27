@@ -115,6 +115,43 @@ export interface DemoRating {
   comment?: string;
 }
 
+// ─── Characters ──────────────────────────────────────────────────────────────
+
+export type CharacterVisibility = 'private' | 'public' | 'unlisted';
+
+export interface Character {
+  id: string;
+  user_id: string;
+  name: string;
+  tagline?: string;
+  description?: string;
+  personality: string;
+  greeting?: string;
+  example_messages?: { role: string; content: string }[];
+  category?: string;
+  tags: string[];
+  avatar_url?: string;
+  visibility: CharacterVisibility;
+  chat_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CharacterCreate {
+  name: string;
+  tagline?: string;
+  description?: string;
+  personality: string;
+  greeting?: string;
+  example_messages?: { role: string; content: string }[];
+  category?: string;
+  tags?: string[];
+  avatar_url?: string;
+  visibility?: CharacterVisibility;
+}
+
+export interface CharacterUpdate extends Partial<CharacterCreate> {}
+
 // ─── Training ────────────────────────────────────────────────────────────────
 
 export type TrainingStatus =

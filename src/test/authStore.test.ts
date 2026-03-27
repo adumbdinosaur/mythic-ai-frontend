@@ -22,6 +22,9 @@ describe('authStore', () => {
       tier: 'free' as const,
       is_active: true,
       created_at: '2024-01-01',
+      discord_id: null,
+      patreon_id: null,
+      subscribestar_id: null,
     };
     useAuthStore.getState().setAuth('my-token', user);
     expect(useAuthStore.getState().isAuthenticated()).toBe(true);
@@ -44,6 +47,9 @@ describe('authStore', () => {
       tier: 'free' as const,
       is_active: true,
       created_at: '2024-01-01',
+      discord_id: null,
+      patreon_id: null,
+      subscribestar_id: null,
     };
     useAuthStore.getState().setAuth('tok', user);
     useAuthStore.getState().logout();

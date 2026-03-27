@@ -112,7 +112,6 @@ function CharacterFormModal({
   const [tagsStr, setTagsStr] = useState((initial?.tags ?? []).join(', '));
   const [visibility, setVisibility] = useState<CharacterVisibility>(initial?.visibility ?? 'private');
   const [avatarUrl, setAvatarUrl] = useState(initial?.avatar_url ?? '');
-  const [contextWindow, setContextWindow] = useState(initial?.context_window ?? 4096);
 
   // Reset form when modal opens with different data
   React.useEffect(() => {
@@ -126,7 +125,6 @@ function CharacterFormModal({
       setTagsStr((initial?.tags ?? []).join(', '));
       setVisibility(initial?.visibility ?? 'private');
       setAvatarUrl(initial?.avatar_url ?? '');
-      setContextWindow(initial?.context_window ?? 4096);
     }
   }, [open, initial]);
 
@@ -146,7 +144,6 @@ function CharacterFormModal({
       tags: tags.length ? tags : undefined,
       avatar_url: avatarUrl || undefined,
       visibility,
-      context_window: contextWindow,
     });
   };
 
@@ -228,20 +225,6 @@ function CharacterFormModal({
 
         <Input label="Avatar URL" placeholder="https://..." value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-300">Context Window: {contextWindow.toLocaleString()} tokens</label>
-          <input
-            type="range"
-            min={512}
-            max={32768}
-            step={512}
-            value={contextWindow}
-            onChange={(e) => setContextWindow(Number(e.target.value))}
-            className="w-full accent-purple-500"
-          />
-          <p className="text-xs text-gray-500">How many tokens of conversation history the model will see. Larger values use more memory but give better context.</p>
-        </div>
-
         <div className="flex justify-end gap-3 pt-2">
           <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
           <Button type="submit" loading={loading}>{initial ? 'Save Changes' : 'Create Character'}</Button>
@@ -266,21 +249,35 @@ function CharacterChatModal({
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [contextWindow, setContextWindow] = useState(4096);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
-    if (open && character?.greeting) {
-      setMessages([{ role: 'assistant', content: character.greeting }]);
-    } else if (open) {
-      setMessages([]);
+    if (open && character) {
+      setContextWindow(character.context_window ?? 4096);
+      if (character.greeting) {
+        setMessages([{ role: 'assistant', content: character.greeting }]);
+      } else {
+        setMessages([]);
+      }
+      setInput('');
+      setConversationId(undefined);
+      // Focus the input after the modal renders
+      requestAnimationFrame(() => inputRef.current?.focus());
     }
-    setInput('');
-    setConversationId(undefined);
   }, [open, character]);
 
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Refocus input when streaming finishes
+  React.useEffect(() => {
+    if (!streaming) {
+      inputRef.current?.focus();
+    }
+  }, [streaming]);
 
   const handleSend = async () => {
     if (!input.trim() || !character || streaming) return;
@@ -349,8 +346,8 @@ function CharacterChatModal({
   if (!character) return null;
 
   return (
-    <Modal isOpen={open} onClose={onClose} title={`Chat with ${character.name}`} size="lg">
-      <div className="flex flex-col h-[65vh]">
+    <Modal isOpen={open} onClose={onClose} title={`Chat with ${character.name}`} size="xl">
+      <div className="flex flex-col h-[80vh]">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1">
           {messages.length === 0 && (
@@ -360,7 +357,7 @@ function CharacterChatModal({
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
               <div
                 className={[
-                  'max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm whitespace-pre-wrap',
+                  'max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm whitespace-pre-wrap',
                   msg.role === 'user'
                     ? 'bg-purple-600/30 text-white'
                     : 'bg-white/5 text-gray-200',
@@ -375,9 +372,24 @@ function CharacterChatModal({
           <div ref={messagesEndRef} />
         </div>
 
+        {/* Context window slider */}
+        <div className="flex items-center gap-3 border-t border-white/10 pt-2 pb-2">
+          <label className="text-xs text-gray-400 whitespace-nowrap">Context: {contextWindow.toLocaleString()}</label>
+          <input
+            type="range"
+            min={512}
+            max={32768}
+            step={512}
+            value={contextWindow}
+            onChange={(e) => setContextWindow(Number(e.target.value))}
+            className="flex-1 accent-purple-500 h-1"
+          />
+        </div>
+
         {/* Input */}
         <div className="flex gap-2 border-t border-white/10 pt-3">
           <textarea
+            ref={inputRef}
             className="flex-1 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150 resize-none"
             placeholder={`Message ${character.name}...`}
             value={input}

@@ -4,9 +4,11 @@ import { Layout, AuthLayout } from './components/layout/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
-import { ChatPage } from './pages/ChatPage';
-import { DemosPage } from './pages/DemosPage';
+// Chat & Demo pages — kept in codebase, hidden until LoRA / demo work is prioritised
+// import { ChatPage } from './pages/ChatPage';
+// import { DemosPage } from './pages/DemosPage';
 import { CharactersPage } from './pages/CharactersPage';
+import { PersonasPage } from './pages/PersonasPage';
 import { ConversationsPage } from './pages/ConversationsPage';
 import { SubscriptionPage } from './pages/SubscriptionPage';
 import { SettingsPage } from './pages/SettingsPage';
@@ -40,9 +42,11 @@ function App() {
           {/* Protected app routes */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route path="/demos" element={<DemosPage />} />
+            {/* Chat & Demo routes hidden — restore when LoRA / demo work is prioritised */}
+            {/* <Route path="/chat" element={<ChatPage />} /> */}
+            {/* <Route path="/demos" element={<DemosPage />} /> */}
             <Route path="/characters" element={<CharactersPage />} />
+            <Route path="/personas" element={<PersonasPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
             <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/settings" element={<SettingsPage />} />

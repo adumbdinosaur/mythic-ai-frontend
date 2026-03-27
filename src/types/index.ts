@@ -210,9 +210,37 @@ export interface Conversation {
   title: string;
   messages: ChatMessage[];
   lora_adapter?: string;
+  character_id?: string;
   created_at: string;
   updated_at: string;
   message_count: number;
+}
+
+// ─── Personas ────────────────────────────────────────────────────────────────
+
+export interface Persona {
+  id: string;
+  user_id: string;
+  name: string;
+  description?: string;
+  personality?: string;
+  avatar_url?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PersonaCreate {
+  name: string;
+  description?: string;
+  personality?: string;
+  avatar_url?: string;
+}
+
+export interface PersonaUpdate {
+  name?: string;
+  description?: string;
+  personality?: string;
+  avatar_url?: string;
 }
 
 // ─── Subscriptions ───────────────────────────────────────────────────────────

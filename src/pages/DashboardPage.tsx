@@ -1,12 +1,16 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { subscriptionsApi } from '../api/subscriptions';
 import { conversationsApi } from '../api/conversations';
+import { charactersApi } from '../api/characters';
 import { Card } from '../components/ui/Card';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
+import { CharacterChatModal } from './CharactersPage';
 import { TIER_LABELS } from '../types';
+import type { Character, Tier } from '../types';
 
 function StatCard({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) {
   return (
@@ -20,6 +24,7 @@ function StatCard({ label, value, sub }: { label: string; value: React.ReactNode
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuthStore();
+  const [chatTarget, setChatTarget] = useState<Character | null>(null);
 
   const { data: subscription, isLoading: subLoading } = useQuery({
     queryKey: ['subscription'],
@@ -30,6 +35,11 @@ export const DashboardPage: React.FC = () => {
   const { data: conversations } = useQuery({
     queryKey: ['conversations-count'],
     queryFn: () => conversationsApi.list({ limit: 1 }).then((r) => r.data),
+  });
+
+  const { data: randomChars, isLoading: charsLoading } = useQuery({
+    queryKey: ['characters', 'random'],
+    queryFn: () => charactersApi.listRandom(6).then((r) => r.data),
   });
 
   return (
@@ -58,7 +68,7 @@ export const DashboardPage: React.FC = () => {
           value={
             (() => {
               const t = subscription?.tier ?? user?.tier ?? 'free';
-              const map: Record<string, string> = { free: '4k', plus: '8k', pro: '16k' };
+              const map: Record<string, string> = { free: '4k', plus: '16k', pro: '32k' };
               return map[t] ?? '4k';
             })()
           }
@@ -73,25 +83,49 @@ export const DashboardPage: React.FC = () => {
 
       {/* Training panel hidden — re-enable when TRAINING_ENABLED=true */}
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Link
-          to="/chat"
-          className="block rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-600/5 border border-purple-500/20 p-5 hover:border-purple-500/40 transition-colors"
-          aria-label="Go to Chat"
-        >
-          <h3 className="font-semibold text-white">Start chatting</h3>
-          <p className="mt-1 text-sm text-gray-400">Jump in and start a conversation.</p>
-        </Link>
-        <Link
-          to="/demos"
-          className="block rounded-xl bg-gradient-to-br from-pink-600/20 to-pink-600/5 border border-pink-500/20 p-5 hover:border-pink-500/40 transition-colors"
-          aria-label="Browse demo models"
-        >
-          <h3 className="font-semibold text-white">Browse demos</h3>
-          <p className="mt-1 text-sm text-gray-400">Try our curated demo models.</p>
-        </Link>
+      {/* Featured characters */}
+      <div>
+        <h2 className="text-lg font-semibold text-white mb-3">Characters to chat with</h2>
+        {charsLoading && (
+          <div className="flex justify-center py-8">
+            <Spinner />
+          </div>
+        )}
+        {!charsLoading && randomChars && randomChars.length === 0 && (
+          <p className="text-sm text-gray-500">No public characters available yet.</p>
+        )}
+        {!charsLoading && randomChars && randomChars.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+            {randomChars.map((c) => (
+              <Card key={c.id} className="flex flex-col gap-2 hover:border-white/20 transition-colors cursor-pointer group" onClick={() => setChatTarget(c)}>
+                <div className="flex items-start justify-between gap-2">
+                  <h3 className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
+                    {c.name}
+                  </h3>
+                  {c.category && (
+                    <span className="text-xs text-purple-400 bg-purple-400/10 rounded-full px-2 py-0.5 shrink-0">
+                      {c.category}
+                    </span>
+                  )}
+                </div>
+                {c.tagline && <p className="text-xs text-gray-400 truncate">{c.tagline}</p>}
+                {c.description && <p className="text-sm text-gray-400 line-clamp-2">{c.description}</p>}
+                <div className="flex items-center justify-between pt-2 border-t border-white/10 mt-auto">
+                  <span className="text-xs text-gray-500">{c.chat_count} chats</span>
+                  <Button variant="primary" size="sm" onClick={(e) => { e.stopPropagation(); setChatTarget(c); }}>Chat</Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Chat modal */}
+      <CharacterChatModal
+        open={!!chatTarget}
+        onClose={() => setChatTarget(null)}
+        character={chatTarget}
+      />
     </div>
   );
 };

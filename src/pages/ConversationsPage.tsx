@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { conversationsApi } from '../api/conversations';
+import { charactersApi } from '../api/characters';
 import { getErrorMessage } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -8,7 +9,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
-import type { Conversation } from '../types';
+import { CharacterChatModal } from './CharactersPage';
+import type { Character, ChatMessage, Conversation } from '../types';
 
 function downloadFile(filename: string, content: string, mime: string) {
   const blob = new Blob([content], { type: mime });
@@ -27,11 +29,13 @@ function formatDate(s: string) {
 function ConversationRow({
   conv,
   onView,
+  onContinue,
   onExport,
   onDelete,
 }: {
   conv: Conversation;
   onView: () => void;
+  onContinue: () => void;
   onExport: (format: 'json' | 'txt') => void;
   onDelete: () => void;
 }) {
@@ -52,6 +56,18 @@ function ConversationRow({
           )}
         </p>
       </button>
+
+      {/* Continue button */}
+      {conv.character_id && (
+        <Button
+          variant="primary"
+          size="sm"
+          onClick={onContinue}
+          className="opacity-0 group-hover:opacity-100 focus:opacity-100 shrink-0"
+        >
+          Continue
+        </Button>
+      )}
 
       {/* Export & delete menu */}
       <div className="relative shrink-0">
@@ -107,6 +123,11 @@ export const ConversationsPage: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null);
   const [deleteError, setDeleteError] = useState('');
 
+  // Continue-chat state
+  const [chatCharacter, setChatCharacter] = useState<Character | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+  const [chatConversationId, setChatConversationId] = useState<string | undefined>(undefined);
+
   const { data: conversations, isLoading } = useQuery({
     queryKey: ['conversations'],
     queryFn: () => conversationsApi.list({ limit: 100 }).then((r) => r.data),
@@ -139,6 +160,22 @@ export const ConversationsPage: React.FC = () => {
       setViewConv({ ...conv, messages: [] });
     } finally {
       setViewLoading(false);
+    }
+  };
+
+  const handleContinue = async (conv: Conversation) => {
+    if (!conv.character_id) return;
+    try {
+      const [fullConv, char] = await Promise.all([
+        conversationsApi.get(conv.id).then((r) => r.data),
+        charactersApi.get(conv.character_id).then((r) => r.data),
+      ]);
+      setChatMessages(fullConv.messages ?? []);
+      setChatConversationId(fullConv.id);
+      setChatCharacter(char);
+    } catch {
+      // Fallback: if character was deleted, still show view
+      handleView(conv);
     }
   };
 
@@ -208,6 +245,7 @@ export const ConversationsPage: React.FC = () => {
                 key={conv.id}
                 conv={conv}
                 onView={() => handleView(conv)}
+                onContinue={() => handleContinue(conv)}
                 onExport={(fmt) => handleExport(conv, fmt)}
                 onDelete={() => { setDeleteError(''); setDeleteTarget(conv); }}
               />
@@ -299,6 +337,15 @@ export const ConversationsPage: React.FC = () => {
           <p className="mt-2 text-sm text-red-400" role="alert">{deleteError}</p>
         )}
       </Modal>
+
+      {/* Continue chat modal */}
+      <CharacterChatModal
+        open={!!chatCharacter}
+        onClose={() => setChatCharacter(null)}
+        character={chatCharacter}
+        initialMessages={chatMessages}
+        initialConversationId={chatConversationId}
+      />
     </div>
   );
 };

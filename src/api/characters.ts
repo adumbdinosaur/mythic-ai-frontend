@@ -11,6 +11,10 @@ export const charactersApi = {
   listPublic: (params?: { limit?: number; offset?: number; category?: string; tag?: string; search?: string }) =>
     api.get<Character[]>('/api/v1/characters/public', { params }),
 
+  /** Get a random selection of public characters (for dashboard). */
+  listRandom: (count = 6) =>
+    api.get<Character[]>('/api/v1/characters/public/random', { params: { count } }),
+
   /** Get a single character by ID. */
   get: (id: string) => api.get<Character>(`/api/v1/characters/${encodeURIComponent(id)}`),
 
@@ -25,7 +29,7 @@ export const charactersApi = {
   delete: (id: string) => api.delete(`/api/v1/characters/${encodeURIComponent(id)}`),
 
   /** SSE-stream a chat with a character. */
-  chatStream: async (characterId: string, messages: ChatMessage[], opts?: { max_tokens?: number; temperature?: number; conversation_id?: string }) => {
+  chatStream: async (characterId: string, messages: ChatMessage[], opts?: { max_tokens?: number; temperature?: number; conversation_id?: string; persona_id?: string }) => {
     const token = getStoredToken();
     const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
@@ -41,6 +45,7 @@ export const charactersApi = {
         max_tokens: opts?.max_tokens ?? 512,
         temperature: opts?.temperature ?? 0.7,
         ...(opts?.conversation_id ? { conversation_id: opts.conversation_id } : {}),
+        ...(opts?.persona_id ? { persona_id: opts.persona_id } : {}),
       }),
     });
 

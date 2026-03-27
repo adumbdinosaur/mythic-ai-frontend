@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { charactersApi } from '../api/characters';
+import { personasApi } from '../api/personas';
 import { getErrorMessage } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -8,7 +9,7 @@ import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
-import type { Character, CharacterCreate, CharacterVisibility, ChatMessage } from '../types';
+import type { Character, CharacterCreate, CharacterVisibility, ChatMessage, PersonaCreate } from '../types';
 import { useAuthStore } from '../stores/authStore';
 import type { Tier } from '../types';
 
@@ -246,15 +247,20 @@ function CharacterFormModal({
 
 // ─── Chat modal ──────────────────────────────────────────────────────────────
 
-function CharacterChatModal({
+export function CharacterChatModal({
   open,
   onClose,
   character,
+  initialMessages,
+  initialConversationId,
 }: {
   open: boolean;
   onClose: () => void;
   character: Character | null;
+  initialMessages?: ChatMessage[];
+  initialConversationId?: string;
 }) {
+  const queryClient = useQueryClient();
   const tier = useAuthStore((s) => s.user?.tier ?? 'free') as Tier;
   const maxContext = TIER_CONTEXT_LIMIT[tier];
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -262,21 +268,66 @@ function CharacterChatModal({
   const [streaming, setStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [contextWindow, setContextWindow] = useState(Math.min(4096, maxContext));
+  const [personaId, setPersonaId] = useState<string | undefined>(undefined);
+  const [step, setStep] = useState<'persona' | 'chat'>('persona');
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false);
+  const [quickName, setQuickName] = useState('');
+  const [quickDesc, setQuickDesc] = useState('');
+  const [quickPersonality, setQuickPersonality] = useState('');
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
+  const { data: personas, isLoading: personasLoading } = useQuery({
+    queryKey: ['personas'],
+    queryFn: () => personasApi.mine().then((r) => r.data),
+    enabled: open,
+  });
+
+  const quickCreateMut = useMutation({
+    mutationFn: (data: PersonaCreate) => personasApi.create(data).then((r) => r.data),
+    onSuccess: (persona) => {
+      queryClient.invalidateQueries({ queryKey: ['personas'] });
+      setPersonaId(persona.id);
+      setQuickCreateOpen(false);
+      setQuickName('');
+      setQuickDesc('');
+      setQuickPersonality('');
+      startChat(persona.id);
+    },
+  });
+
+  const startChat = (selectedPersonaId?: string) => {
+    if (!character) return;
+    setPersonaId(selectedPersonaId);
+    setStep('chat');
+    setContextWindow(Math.min(character.context_window ?? 4096, maxContext));
+    if (character.greeting) {
+      setMessages([{ role: 'assistant', content: character.greeting }]);
+    } else {
+      setMessages([]);
+    }
+    setInput('');
+    setConversationId(undefined);
+    requestAnimationFrame(() => inputRef.current?.focus());
+  };
+
   React.useEffect(() => {
     if (open && character) {
-      setContextWindow(Math.min(character.context_window ?? 4096, maxContext));
-      if (character.greeting) {
-        setMessages([{ role: 'assistant', content: character.greeting }]);
+      if (initialMessages && initialMessages.length > 0) {
+        // Continuing an existing conversation — skip persona picker
+        setStep('chat');
+        setContextWindow(Math.min(character.context_window ?? 4096, maxContext));
+        setMessages(initialMessages);
+        setConversationId(initialConversationId);
+        setInput('');
+        setPersonaId(undefined);
+        requestAnimationFrame(() => inputRef.current?.focus());
       } else {
-        setMessages([]);
+        // Fresh chat — show persona picker
+        setStep('persona');
+        setPersonaId(undefined);
+        setQuickCreateOpen(false);
       }
-      setInput('');
-      setConversationId(undefined);
-      // Focus the input after the modal renders
-      requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [open, character]);
 
@@ -300,7 +351,10 @@ function CharacterChatModal({
     setStreaming(true);
 
     try {
-      const stream = await charactersApi.chatStream(character.id, updated, { conversation_id: conversationId });
+      const stream = await charactersApi.chatStream(character.id, updated, {
+        conversation_id: conversationId,
+        persona_id: personaId,
+      });
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let assistantContent = '';
@@ -357,9 +411,100 @@ function CharacterChatModal({
 
   if (!character) return null;
 
+  // ─── Persona picker step ───────────────────────────────────────────────
+  if (step === 'persona') {
+    return (
+      <Modal isOpen={open} onClose={onClose} title={`Chat with ${character.name}`} size="lg">
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-gray-400">Choose a persona to represent yourself, or chat without one.</p>
+
+          {personasLoading && (
+            <div className="flex justify-center py-6"><Spinner /></div>
+          )}
+
+          {!personasLoading && personas && personas.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+              {personas.map((p) => (
+                <button
+                  key={p.id}
+                  className="text-left rounded-lg bg-white/5 border border-white/10 hover:border-purple-500/50 p-3 transition-colors"
+                  onClick={() => startChat(p.id)}
+                >
+                  <p className="text-sm font-medium text-white">{p.name}</p>
+                  {p.description && <p className="text-xs text-gray-400 mt-0.5 line-clamp-2">{p.description}</p>}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {!personasLoading && (!personas || personas.length === 0) && !quickCreateOpen && (
+            <div className="text-center py-4">
+              <p className="text-sm text-gray-500">You haven't created any personas yet.</p>
+            </div>
+          )}
+
+          {/* Quick-create inline form */}
+          {quickCreateOpen && (
+            <div className="rounded-lg bg-white/5 border border-white/10 p-4 flex flex-col gap-3">
+              <p className="text-sm font-medium text-white">Quick-create a persona</p>
+              <input
+                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                placeholder="Name"
+                value={quickName}
+                onChange={(e) => setQuickName(e.target.value)}
+              />
+              <textarea
+                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[50px] resize-none"
+                placeholder="Description (who is this persona?)"
+                value={quickDesc}
+                onChange={(e) => setQuickDesc(e.target.value)}
+                rows={2}
+              />
+              <textarea
+                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[50px] resize-none"
+                placeholder="Personality (how they speak and behave)"
+                value={quickPersonality}
+                onChange={(e) => setQuickPersonality(e.target.value)}
+                rows={2}
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="ghost" size="sm" onClick={() => setQuickCreateOpen(false)}>Cancel</Button>
+                <Button
+                  size="sm"
+                  loading={quickCreateMut.isPending}
+                  disabled={!quickName.trim()}
+                  onClick={() => quickCreateMut.mutate({
+                    name: quickName.trim(),
+                    description: quickDesc.trim() || undefined,
+                    personality: quickPersonality.trim() || undefined,
+                  })}
+                >
+                  Create & Chat
+                </Button>
+              </div>
+            </div>
+          )}
+
+          <div className="flex gap-3 justify-between border-t border-white/10 pt-3">
+            <Button variant="ghost" size="sm" onClick={() => setQuickCreateOpen(true)} disabled={quickCreateOpen}>
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              New Persona
+            </Button>
+            <Button variant="primary" onClick={() => startChat()}>
+              Chat without persona
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
+
+  // ─── Chat step ─────────────────────────────────────────────────────────
   return (
     <Modal isOpen={open} onClose={onClose} title={`Chat with ${character.name}`} size="xl">
-      <div className="flex flex-col h-[80vh]">
+      <div className="flex flex-col h-[80vh]" onClick={() => inputRef.current?.focus()}>
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-3 mb-3 pr-1">
           {messages.length === 0 && (

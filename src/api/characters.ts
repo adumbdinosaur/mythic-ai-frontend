@@ -1,5 +1,6 @@
 import { api } from './client';
 import type { Character, CharacterCreate, CharacterUpdate, ChatMessage } from '../types';
+import { getStoredToken } from '../utils/auth-token';
 
 export const charactersApi = {
   /** List the current user's characters. */
@@ -25,7 +26,7 @@ export const charactersApi = {
 
   /** SSE-stream a chat with a character. */
   chatStream: async (characterId: string, messages: ChatMessage[], opts?: { max_tokens?: number; temperature?: number }) => {
-    const token = localStorage.getItem('access_token');
+    const token = getStoredToken();
     const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
     const res = await fetch(`${baseUrl}/api/v1/characters/${encodeURIComponent(characterId)}/chat`, {

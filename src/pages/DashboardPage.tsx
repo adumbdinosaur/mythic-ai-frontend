@@ -5,12 +5,11 @@ import { subscriptionsApi } from '../api/subscriptions';
 import { conversationsApi } from '../api/conversations';
 import { charactersApi } from '../api/characters';
 import { Card } from '../components/ui/Card';
-import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { CharacterChatModal } from './CharactersPage';
 import { TIER_LABELS } from '../types';
-import type { Character, Tier } from '../types';
+import type { Character } from '../types';
 
 function StatCard({ label, value, sub }: { label: string; value: React.ReactNode; sub?: string }) {
   return (

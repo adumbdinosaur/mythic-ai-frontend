@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   as?: React.ElementType;
@@ -10,12 +10,14 @@ export const Card: React.FC<CardProps> = ({
   children,
   className = '',
   as: Tag = 'div',
+  ...rest
 }) => (
   <Tag
     className={[
       'rounded-xl bg-white/5 border border-white/10 p-5',
       className,
     ].join(' ')}
+    {...rest}
   >
     {children}
   </Tag>

@@ -9,6 +9,16 @@ import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import type { Character, CharacterCreate, CharacterVisibility, ChatMessage } from '../types';
+import { useAuthStore } from '../stores/authStore';
+import type { Tier } from '../types';
+
+// ─── Tier context-window caps ────────────────────────────────────────────────
+
+const TIER_CONTEXT_LIMIT: Record<Tier, number> = {
+  free: 4096,
+  plus: 16384,
+  pro: 32768,
+};
 
 // ─── Category presets ────────────────────────────────────────────────────────
 
@@ -245,17 +255,19 @@ function CharacterChatModal({
   onClose: () => void;
   character: Character | null;
 }) {
+  const tier = useAuthStore((s) => s.user?.tier ?? 'free') as Tier;
+  const maxContext = TIER_CONTEXT_LIMIT[tier];
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [streaming, setStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
-  const [contextWindow, setContextWindow] = useState(4096);
+  const [contextWindow, setContextWindow] = useState(Math.min(4096, maxContext));
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const inputRef = React.useRef<HTMLTextAreaElement>(null);
 
   React.useEffect(() => {
     if (open && character) {
-      setContextWindow(character.context_window ?? 4096);
+      setContextWindow(Math.min(character.context_window ?? 4096, maxContext));
       if (character.greeting) {
         setMessages([{ role: 'assistant', content: character.greeting }]);
       } else {
@@ -378,7 +390,7 @@ function CharacterChatModal({
           <input
             type="range"
             min={512}
-            max={32768}
+            max={maxContext}
             step={512}
             value={contextWindow}
             onChange={(e) => setContextWindow(Number(e.target.value))}

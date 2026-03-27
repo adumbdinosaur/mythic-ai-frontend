@@ -103,6 +103,7 @@ export const ConversationsPage: React.FC = () => {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [viewConv, setViewConv] = useState<Conversation | null>(null);
+  const [viewLoading, setViewLoading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Conversation | null>(null);
   const [deleteError, setDeleteError] = useState('');
 
@@ -127,6 +128,19 @@ export const ConversationsPage: React.FC = () => {
   });
 
   const displayList = search.trim().length >= 2 ? (searchResults ?? []) : (conversations ?? []);
+
+  const handleView = async (conv: Conversation) => {
+    setViewLoading(true);
+    setViewConv(null);
+    try {
+      const full = await conversationsApi.get(conv.id).then((r) => r.data);
+      setViewConv(full);
+    } catch {
+      setViewConv({ ...conv, messages: [] });
+    } finally {
+      setViewLoading(false);
+    }
+  };
 
   const handleExport = (conv: Conversation, format: 'json' | 'txt') => {
     const content =
@@ -193,7 +207,7 @@ export const ConversationsPage: React.FC = () => {
               <ConversationRow
                 key={conv.id}
                 conv={conv}
-                onView={() => setViewConv(conv)}
+                onView={() => handleView(conv)}
                 onExport={(fmt) => handleExport(conv, fmt)}
                 onDelete={() => { setDeleteError(''); setDeleteTarget(conv); }}
               />
@@ -204,25 +218,33 @@ export const ConversationsPage: React.FC = () => {
 
       {/* View Modal */}
       <Modal
-        isOpen={!!viewConv}
-        onClose={() => setViewConv(null)}
-        title={viewConv?.title ?? ''}
+        isOpen={!!viewConv || viewLoading}
+        onClose={() => { setViewConv(null); setViewLoading(false); }}
+        title={viewConv?.title ?? 'Loading…'}
         size="lg"
         footer={
           <>
-            <Button variant="outline" size="sm" onClick={() => viewConv && handleExport(viewConv, 'txt')}>
+            <Button variant="outline" size="sm" onClick={() => viewConv && handleExport(viewConv, 'txt')} disabled={!viewConv}>
               Export .txt
             </Button>
-            <Button variant="outline" size="sm" onClick={() => viewConv && handleExport(viewConv, 'json')}>
+            <Button variant="outline" size="sm" onClick={() => viewConv && handleExport(viewConv, 'json')} disabled={!viewConv}>
               Export .json
             </Button>
-            <Button variant="ghost" onClick={() => setViewConv(null)}>
+            <Button variant="ghost" onClick={() => { setViewConv(null); setViewLoading(false); }}>
               Close
             </Button>
           </>
         }
       >
-        {viewConv && (
+        {viewLoading && (
+          <div className="flex justify-center py-8">
+            <Spinner label="Loading messages" />
+          </div>
+        )}
+        {viewConv && viewConv.messages.length === 0 && !viewLoading && (
+          <p className="text-sm text-gray-500 text-center py-8">This conversation has no messages.</p>
+        )}
+        {viewConv && viewConv.messages.length > 0 && (
           <div className="flex flex-col gap-3 max-h-80 overflow-y-auto">
             {viewConv.messages.map((msg, i) => (
               <div

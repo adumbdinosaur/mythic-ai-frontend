@@ -516,8 +516,8 @@ export function CharacterChatModal({
                 className={[
                   'max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm whitespace-pre-wrap',
                   msg.role === 'user'
-                    ? 'bg-red-700/30 text-white'
-                    : 'bg-white/5 text-gray-200',
+                    ? 'bg-red-900/40 text-gray-100 leading-relaxed'
+                    : 'bg-gray-800/80 text-gray-100 leading-relaxed',
                 ].join(' ')}
               >
                 {msg.content || (streaming && i === messages.length - 1 ? (

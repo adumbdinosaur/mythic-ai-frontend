@@ -273,6 +273,7 @@ export function CharacterChatModal({
   const [topK, setTopK] = useState(50);
   const [repPenalty, setRepPenalty] = useState(1.1);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [alternatives, setAlternatives] = useState<Record<number, { options: string[]; current: number }>>({});
   const [personaId, setPersonaId] = useState<string | undefined>(undefined);
   const [step, setStep] = useState<'persona' | 'chat'>('persona');
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
@@ -583,24 +584,96 @@ export function CharacterChatModal({
                   ) : null)}
                 </div>
                 {msg.role === 'assistant' && !streaming && msg.content && (
-                  <button
-                    onClick={() => {
-                      const prevMessages = messages.slice(0, i);
-                      setMessages(prevMessages);
-                      setInput('');
-                      const lastUserMsg = [...prevMessages].reverse().find(m => m.role === 'user');
-                      if (lastUserMsg) {
-                        setInput(lastUserMsg.content);
-                      }
-                    }}
-                    className="self-start mt-1 ml-1 text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
-                    title="Retry from this point"
-                  >
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Retry
-                  </button>
+                  <div className="self-start mt-1 ml-1 flex items-center gap-2">
+                    {alternatives[i] && alternatives[i].options.length > 1 && (
+                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                        <button
+                          onClick={() => {
+                            const alt = alternatives[i];
+                            const prev = (alt.current - 1 + alt.options.length) % alt.options.length;
+                            setAlternatives(a => ({ ...a, [i]: { ...alt, current: prev } }));
+                            setMessages(msgs => msgs.map((m, idx) => idx === i ? { ...m, content: alt.options[prev] } : m));
+                          }}
+                          className="hover:text-gray-300 transition-colors p-0.5"
+                          aria-label="Previous alternative"
+                        >
+                          ←
+                        </button>
+                        <span>{(alternatives[i].current + 1)}/{alternatives[i].options.length}</span>
+                        <button
+                          onClick={() => {
+                            const alt = alternatives[i];
+                            const next = (alt.current + 1) % alt.options.length;
+                            setAlternatives(a => ({ ...a, [i]: { ...alt, current: next } }));
+                            setMessages(msgs => msgs.map((m, idx) => idx === i ? { ...m, content: alt.options[next] } : m));
+                          }}
+                          className="hover:text-gray-300 transition-colors p-0.5"
+                          aria-label="Next alternative"
+                        >
+                          →
+                        </button>
+                      </div>
+                    )}
+                    <button
+                      onClick={async () => {
+                        if (streaming || !character) return;
+                        const history = messages.slice(0, i).map(({ role, content: c }) => ({ role, content: c }));
+                        setStreaming(true);
+                        const currentContent = msg.content;
+                        setMessages(msgs => msgs.map((m, idx) => idx === i ? { ...m, content: '' } : m));
+                        try {
+                          const stream = await charactersApi.chatStream(character.id, history, {
+                            conversation_id: conversationId,
+                            persona_id: personaId,
+                            max_tokens: maxTokens,
+                            temperature,
+                            top_p: topP,
+                            top_k: topK,
+                            repetition_penalty: repPenalty,
+                          });
+                          const reader = stream.getReader();
+                          const decoder = new TextDecoder();
+                          let newContent = '';
+                          while (true) {
+                            const { done, value } = await reader.read();
+                            if (done) break;
+                            const chunk = decoder.decode(value, { stream: true });
+                            for (const line of chunk.split('\n')) {
+                              if (!line.startsWith('data: ')) continue;
+                              const data = line.slice(6);
+                              if (data === '[DONE]') continue;
+                              try {
+                                const parsed = JSON.parse(data);
+                                if (parsed.conversation_id && !parsed.choices) continue;
+                                const delta = parsed.choices?.[0]?.delta?.content;
+                                if (delta) {
+                                  newContent += delta;
+                                  setMessages(msgs => msgs.map((m, idx) => idx === i ? { ...m, content: newContent } : m));
+                                }
+                              } catch {}
+                            }
+                          }
+                          // Track alternatives
+                          setAlternatives(prev => {
+                            const existing = prev[i] || { options: [currentContent], current: 0 };
+                            const opts = [...existing.options, newContent];
+                            return { ...prev, [i]: { options: opts, current: opts.length - 1 } };
+                          });
+                        } catch (err) {
+                          setMessages(msgs => msgs.map((m, idx) => idx === i ? { ...m, content: currentContent } : m));
+                        } finally {
+                          setStreaming(false);
+                        }
+                      }}
+                      className="text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
+                      title="Regenerate response"
+                    >
+                      <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Retry
+                    </button>
+                  </div>
                 )}
               </div>
             </div>

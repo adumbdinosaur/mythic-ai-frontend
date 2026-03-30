@@ -23,6 +23,10 @@ const CATEGORIES = [
 ];
 
 function ExploreCard({ character, onChat }: { character: Character; onChat: () => void }) {
+  const hasNsfw = (character.tags ?? []).some((t: string) =>
+    ['nsfw', 'limitless'].includes(t.toLowerCase())
+  );
+
   return (
     <Card
       className="flex flex-col gap-3 cursor-pointer hover:border-red-500/50 hover:bg-white/[0.03] transition-all duration-200 group"
@@ -56,7 +60,7 @@ function ExploreCard({ character, onChat }: { character: Character; onChat: () =
 
       <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
         <div className="flex flex-wrap items-center gap-1.5">
-          {(character.tags ?? []).some((t) => [nsfw, limitless].includes(t.toLowerCase())) && (
+          {hasNsfw && (
             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold bg-red-600/30 text-red-400 ring-1 ring-red-500/30">
               NSFW
             </span>
@@ -65,9 +69,9 @@ function ExploreCard({ character, onChat }: { character: Character; onChat: () =
             <Badge variant="purple">{character.category}</Badge>
           )}
           {(character.tags ?? [])
-            .filter((t) => ![nsfw, limitless].includes(t.toLowerCase()))
+            .filter((t: string) => !['nsfw', 'limitless'].includes(t.toLowerCase()))
             .slice(0, 2)
-            .map((tag) => (
+            .map((tag: string) => (
               <Badge key={tag} variant="default">{tag}</Badge>
             ))}
         </div>
@@ -108,6 +112,7 @@ export const ExplorePage: React.FC = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const [category, setCategory] = useState('');
+  const [contentFilter, setContentFilter] = useState<'all' | 'sfw' | 'nsfw'>('all');
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
 
@@ -126,6 +131,14 @@ export const ExplorePage: React.FC = () => {
           ...(debouncedSearch ? { search: debouncedSearch } : {}),
         })
         .then((r) => r.data),
+  });
+
+  const filteredCharacters = (characters ?? []).filter((char) => {
+    if (contentFilter === 'all') return true;
+    const isNsfw = (char.tags ?? []).some((t: string) =>
+      ['nsfw', 'limitless'].includes(t.toLowerCase())
+    );
+    return contentFilter === 'nsfw' ? isNsfw : !isNsfw;
   });
 
   const handleChat = (character: Character) => {
@@ -199,20 +212,14 @@ export const ExplorePage: React.FC = () => {
           <div className="flex justify-center py-20">
             <Spinner size="lg" />
           </div>
-        ) : (characters?.length ?? 0) === 0 ? (
+        ) : filteredCharacters.length === 0 ? (
           <div className="text-center py-20">
-            <p className="text-gray-500 text-lg">No characters yet.</p>
-            <p className="text-gray-600 text-sm mt-2">Check back soon — new characters are being added.</p>
+            <p className="text-gray-500 text-lg">No characters found.</p>
+            <p className="text-gray-600 text-sm mt-2">Try a different filter or check back soon.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
-            {(characters ?? [])
-              .filter((char) => {
-                if (contentFilter === 'all') return true;
-                const isNsfw = (char.tags ?? []).some((t) => ['nsfw', 'limitless'].includes(t.toLowerCase()));
-                return contentFilter === 'nsfw' ? isNsfw : !isNsfw;
-              })
-              .map((char) => (
+            {filteredCharacters.map((char) => (
               <ExploreCard
                 key={char.id}
                 character={char}

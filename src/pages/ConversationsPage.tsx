@@ -1,3 +1,4 @@
+import { MarkdownMessage } from "../components/ui/MarkdownMessage";
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { conversationsApi } from '../api/conversations';
@@ -301,7 +302,7 @@ export const ConversationsPage: React.FC = () => {
                   ].join(' ')}
                 >
                   <span className="sr-only">{msg.role === 'user' ? 'You' : 'Mythic AI'}: </span>
-                  <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
+                  <MarkdownMessage content={msg.content} className="prose-sm" />
                 </div>
               </div>
             ))}

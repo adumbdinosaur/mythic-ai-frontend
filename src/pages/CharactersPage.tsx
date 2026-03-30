@@ -1,3 +1,4 @@
+import { MarkdownMessage } from "../components/ui/MarkdownMessage";
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { charactersApi } from '../api/characters';
@@ -531,7 +532,7 @@ export function CharacterChatModal({
                     : 'bg-gray-800/80 text-gray-100 leading-relaxed',
                 ].join(' ')}
               >
-                {msg.content || (streaming && i === messages.length - 1 ? (
+                {msg.content ? <MarkdownMessage content={msg.content} className="prose-sm" /> : (streaming && i === messages.length - 1 ? (
                   <span className="inline-block w-2 h-4 bg-red-400 animate-pulse rounded-sm" />
                 ) : null)}
               </div>

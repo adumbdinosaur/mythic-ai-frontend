@@ -1,3 +1,4 @@
+import { MarkdownMessage } from "../components/ui/MarkdownMessage";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { trainingApi } from '../api/training';
@@ -36,7 +37,7 @@ function MessageBubble({ msg }: { msg: Message }) {
         ].join(' ')}
       >
         <span className="sr-only">{isUser ? 'You' : 'Mythic AI'}: </span>
-        <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
+        <MarkdownMessage content={msg.content} className="prose-sm" />
         {msg.isStreaming && (
           <span className="inline-block ml-1 w-1.5 h-4 bg-red-400 animate-pulse rounded-sm" aria-hidden="true" />
         )}

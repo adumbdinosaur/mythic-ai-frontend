@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
-import { subscriptionsApi } from '../api/subscriptions';
 import { conversationsApi } from '../api/conversations';
 import { charactersApi } from '../api/characters';
 import { Card } from '../components/ui/Card';
@@ -24,12 +23,6 @@ function StatCard({ label, value, sub }: { label: string; value: React.ReactNode
 export const DashboardPage: React.FC = () => {
   const { user } = useAuthStore();
   const [chatTarget, setChatTarget] = useState<Character | null>(null);
-
-  const { data: subscription, isLoading: subLoading } = useQuery({
-    queryKey: ['subscription'],
-    queryFn: () => subscriptionsApi.me().then((r) => r.data),
-    retry: false, // users without subscription will get 404
-  });
 
   const { data: conversations } = useQuery({
     queryKey: ['conversations-count'],
@@ -58,15 +51,15 @@ export const DashboardPage: React.FC = () => {
         <StatCard
           label="Plan"
           value={
-            <span>{TIER_LABELS[subscription?.tier ?? user?.tier ?? 'free']}</span>
+            <span>{TIER_LABELS[user?.tier ?? 'free']}</span>
           }
-          sub={subscription?.status === 'active' ? 'Active' : undefined}
+          sub={undefined}
         />
         <StatCard
           label="Context window"
           value={
             (() => {
-              const t = subscription?.tier ?? user?.tier ?? 'free';
+              const t = user?.tier ?? 'free';
               const map: Record<string, string> = { free: '4k', plus: '16k', pro: '32k' };
               return map[t] ?? '4k';
             })()
@@ -75,7 +68,7 @@ export const DashboardPage: React.FC = () => {
         />
         <StatCard
           label="Conversations"
-          value={subLoading ? <Spinner size="sm" /> : (conversations?.length ?? '—')}
+          value={(conversations?.length ?? '—')}
           sub="saved"
         />
       </div>

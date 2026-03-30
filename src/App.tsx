@@ -8,11 +8,12 @@ import { ExplorePage } from './pages/ExplorePage';
 import { CharactersPage } from './pages/CharactersPage';
 import { PersonasPage } from './pages/PersonasPage';
 import { ConversationsPage } from './pages/ConversationsPage';
-import { SubscriptionPage } from './pages/SubscriptionPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminAuditLogPage } from './pages/AdminAuditLogPage';
+import { TermsPage } from './pages/TermsPage';
+import { PrivacyPage } from './pages/PrivacyPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -31,6 +32,8 @@ function App() {
           {/* Public landing — character explore (no auth required) */}
           <Route path="/" element={<ExplorePage />} />
           <Route path="/explore" element={<ExplorePage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
 
           {/* Auth routes */}
           <Route element={<AuthLayout />}>
@@ -44,7 +47,6 @@ function App() {
             <Route path="/characters" element={<CharactersPage />} />
             <Route path="/personas" element={<PersonasPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
-            <Route path="/subscription" element={<SubscriptionPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             {/* Admin routes */}
             <Route path="/admin" element={<AdminDashboardPage />} />

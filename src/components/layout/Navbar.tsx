@@ -152,14 +152,7 @@ export const Navbar: React.FC = () => {
                 <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-700/20 text-red-400">
                   {TIER_LABELS[user.tier]}
                 </span>
-                {user.tier === 'free' && (
-                  <NavLink
-                    to="/subscription"
-                    className="text-xs text-red-400 hover:text-red-300 underline underline-offset-2"
-                  >
-                    Upgrade
-                  </NavLink>
-                )}
+
               </div>
             </div>
           )}

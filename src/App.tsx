@@ -4,9 +4,7 @@ import { Layout, AuthLayout } from './components/layout/Layout';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { DashboardPage } from './pages/DashboardPage';
-// Chat & Demo pages — kept in codebase, hidden until LoRA / demo work is prioritised
-// import { ChatPage } from './pages/ChatPage';
-// import { DemosPage } from './pages/DemosPage';
+import { ExplorePage } from './pages/ExplorePage';
 import { CharactersPage } from './pages/CharactersPage';
 import { PersonasPage } from './pages/PersonasPage';
 import { ConversationsPage } from './pages/ConversationsPage';
@@ -15,9 +13,6 @@ import { SettingsPage } from './pages/SettingsPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { AdminAuditLogPage } from './pages/AdminAuditLogPage';
-// Training pages — kept in codebase, hidden from routing until TRAINING_ENABLED
-// import { TrainingPage } from './pages/TrainingPage';
-// import { TrainingJobPage } from './pages/TrainingJobPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +28,10 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
+          {/* Public landing — character explore (no auth required) */}
+          <Route path="/" element={<ExplorePage />} />
+          <Route path="/explore" element={<ExplorePage />} />
+
           {/* Auth routes */}
           <Route element={<AuthLayout />}>
             <Route path="/login" element={<LoginPage />} />
@@ -42,9 +41,6 @@ function App() {
           {/* Protected app routes */}
           <Route element={<Layout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            {/* Chat & Demo routes hidden — restore when LoRA / demo work is prioritised */}
-            {/* <Route path="/chat" element={<ChatPage />} /> */}
-            {/* <Route path="/demos" element={<DemosPage />} /> */}
             <Route path="/characters" element={<CharactersPage />} />
             <Route path="/personas" element={<PersonasPage />} />
             <Route path="/conversations" element={<ConversationsPage />} />
@@ -54,13 +50,9 @@ function App() {
             <Route path="/admin" element={<AdminDashboardPage />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
             <Route path="/admin/audit-log" element={<AdminAuditLogPage />} />
-            {/* Training routes hidden — uncomment when TRAINING_ENABLED=true */}
-            {/* <Route path="/training" element={<TrainingPage />} /> */}
-            {/* <Route path="/training/:id" element={<TrainingJobPage />} /> */}
           </Route>
 
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>

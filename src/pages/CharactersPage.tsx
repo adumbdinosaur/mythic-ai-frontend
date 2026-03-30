@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { charactersApi } from '../api/characters';
 import { personasApi } from '../api/personas';
+import { conversationsApi } from '../api/conversations';
 import { getErrorMessage } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
@@ -287,6 +288,28 @@ export function CharacterChatModal({
     enabled: open,
   });
 
+  const { data: prevConversations, isLoading: convsLoading } = useQuery({
+    queryKey: ['conversations', 'character', character?.id],
+    queryFn: () => conversationsApi.list({ character_id: character!.id, limit: 10 }).then((r) => r.data),
+    enabled: open && !!character,
+  });
+
+  const resumeConversation = async (convId: string) => {
+    if (!character) return;
+    try {
+      const full = await conversationsApi.get(convId).then((r) => r.data);
+      const msgs: ChatMessage[] = full.messages.map((m) => ({ role: m.role as ChatMessage['role'], content: m.content }));
+      setStep('chat');
+      setContextWindow(Math.min(character.context_window ?? 4096, maxContext));
+      setMessages(msgs);
+      setConversationId(convId);
+      setInput('');
+      requestAnimationFrame(() => inputRef.current?.focus());
+    } catch (err) {
+      console.error('Failed to load conversation', err);
+    }
+  };
+
   const quickCreateMut = useMutation({
     mutationFn: (data: PersonaCreate) => personasApi.create(data).then((r) => r.data),
     onSuccess: (persona) => {
@@ -494,6 +517,28 @@ export function CharacterChatModal({
             </div>
           )}
 
+          {/* Previous conversations */}
+          {!convsLoading && prevConversations && prevConversations.length > 0 && (
+            <div className="border-t border-white/10 pt-3">
+              <p className="text-sm font-medium text-gray-300 mb-2">Previous Conversations</p>
+              <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
+                {prevConversations.map((conv) => (
+                  <button
+                    key={conv.id}
+                    className="text-left rounded-lg bg-white/5 border border-white/10 hover:border-amber-500/50 p-3 transition-colors flex items-center justify-between gap-2"
+                    onClick={() => resumeConversation(conv.id)}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-white truncate">{conv.title || 'Untitled conversation'}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{conv.message_count} messages · {new Date(conv.updated_at).toLocaleDateString()}</p>
+                    </div>
+                    <span className="text-xs text-amber-400 shrink-0">Resume →</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-3 justify-between border-t border-white/10 pt-3">
             <Button variant="ghost" size="sm" onClick={() => setQuickCreateOpen(true)} disabled={quickCreateOpen}>
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
@@ -502,7 +547,7 @@ export function CharacterChatModal({
               New Persona
             </Button>
             <Button variant="primary" onClick={() => startChat()}>
-              Chat without persona
+              New Chat
             </Button>
           </div>
         </div>

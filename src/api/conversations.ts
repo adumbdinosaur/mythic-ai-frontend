@@ -2,7 +2,7 @@ import { api } from './client';
 import type { Conversation } from '../types';
 
 export const conversationsApi = {
-  list: (params?: { limit?: number; offset?: number }) =>
+  list: (params?: { limit?: number; offset?: number; character_id?: string }) =>
     api.get<Conversation[]>('/api/v1/conversations', { params }),
 
   get: (id: string) => api.get<Conversation>(`/api/v1/conversations/${id}`),

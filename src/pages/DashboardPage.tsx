@@ -98,11 +98,11 @@ export const DashboardPage: React.FC = () => {
             {randomChars.map((c) => (
               <Card key={c.id} className="flex flex-col gap-2 hover:border-white/20 transition-colors cursor-pointer group" onClick={() => setChatTarget(c)}>
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
+                  <h3 className="font-semibold text-white truncate group-hover:text-red-300 transition-colors">
                     {c.name}
                   </h3>
                   {c.category && (
-                    <span className="text-xs text-purple-400 bg-purple-400/10 rounded-full px-2 py-0.5 shrink-0">
+                    <span className="text-xs text-red-400 bg-red-400/10 rounded-full px-2 py-0.5 shrink-0">
                       {c.category}
                     </span>
                   )}

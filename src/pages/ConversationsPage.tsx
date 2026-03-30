@@ -290,14 +290,14 @@ export const ConversationsPage: React.FC = () => {
                 className={['flex gap-3', msg.role === 'user' ? 'justify-end' : ''].join(' ')}
               >
                 {msg.role !== 'user' && (
-                  <div className="h-6 w-6 rounded-full bg-purple-600 flex items-center justify-center text-xs font-bold text-white shrink-0 mt-0.5" aria-hidden="true">
+                  <div className="h-6 w-6 rounded-full bg-red-700 flex items-center justify-center text-xs font-bold text-white shrink-0 mt-0.5" aria-hidden="true">
                     M
                   </div>
                 )}
                 <div
                   className={[
                     'max-w-[80%] rounded-xl px-3 py-2 text-sm',
-                    msg.role === 'user' ? 'bg-purple-600/30 text-white' : 'bg-white/5 text-gray-300',
+                    msg.role === 'user' ? 'bg-red-700/30 text-white' : 'bg-white/5 text-gray-300',
                   ].join(' ')}
                 >
                   <span className="sr-only">{msg.role === 'user' ? 'You' : 'Mythic AI'}: </span>

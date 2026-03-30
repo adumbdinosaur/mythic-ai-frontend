@@ -52,7 +52,7 @@ function DemoCard({ demo, onSelect, onRate }: { demo: DemoLoRA; onSelect: () => 
     <Card className="flex flex-col gap-3 hover:border-white/20 transition-colors cursor-pointer group">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h3 className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
+          <h3 className="font-semibold text-white truncate group-hover:text-red-300 transition-colors">
             {demo.name}
           </h3>
           <Badge variant="info" className="mt-1">{demo.category}</Badge>
@@ -163,7 +163,7 @@ export const DemosPage: React.FC = () => {
               className={[
                 'px-3 py-1.5 rounded-full text-sm font-medium transition-colors',
                 category === cat
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-red-700 text-white'
                   : 'bg-white/5 text-gray-400 hover:text-white hover:bg-white/10',
               ].join(' ')}
               aria-pressed={category === cat}

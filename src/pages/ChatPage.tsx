@@ -21,7 +21,7 @@ function MessageBubble({ msg }: { msg: Message }) {
     >
       {!isUser && (
         <div
-          className="shrink-0 mr-2 mt-1 h-7 w-7 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-xs font-bold text-white"
+          className="shrink-0 mr-2 mt-1 h-7 w-7 rounded-full bg-gradient-to-br from-red-600 to-pink-500 flex items-center justify-center text-xs font-bold text-white"
           aria-hidden="true"
         >
           M
@@ -31,14 +31,14 @@ function MessageBubble({ msg }: { msg: Message }) {
         className={[
           'max-w-[75%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed',
           isUser
-            ? 'bg-purple-600 text-white rounded-br-sm'
+            ? 'bg-red-700 text-white rounded-br-sm'
             : 'bg-white/10 text-gray-100 rounded-bl-sm',
         ].join(' ')}
       >
         <span className="sr-only">{isUser ? 'You' : 'Mythic AI'}: </span>
         <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
         {msg.isStreaming && (
-          <span className="inline-block ml-1 w-1.5 h-4 bg-purple-400 animate-pulse rounded-sm" aria-hidden="true" />
+          <span className="inline-block ml-1 w-1.5 h-4 bg-red-400 animate-pulse rounded-sm" aria-hidden="true" />
         )}
       </div>
     </div>
@@ -190,7 +190,7 @@ export const ChatPage: React.FC = () => {
           <label htmlFor="adapter-select" className="sr-only">Select LoRA adapter</label>
           <select
             id="adapter-select"
-            className="bg-white/5 border border-white/10 text-sm text-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="bg-white/5 border border-white/10 text-sm text-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-red-600"
             value={selectedAdapter}
             onChange={(e) => setSelectedAdapter(e.target.value)}
             aria-label="Select LoRA adapter"
@@ -258,7 +258,7 @@ export const ChatPage: React.FC = () => {
           ref={inputRef}
           id="chat-input"
           rows={1}
-          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent"
           placeholder="Type your message…"
           value={input}
           onChange={(e) => setInput(e.target.value)}

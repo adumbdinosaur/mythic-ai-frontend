@@ -70,7 +70,7 @@ export const AdminDashboardPage: React.FC = () => {
               key={t}
               label={TIER_LABELS[t as Tier]}
               value={stats.users.by_tier[t] ?? 0}
-              color={t === 'pro' ? 'text-purple-400' : t === 'plus' ? 'text-pink-400' : 'text-gray-300'}
+              color={t === 'pro' ? 'text-red-400' : t === 'plus' ? 'text-amber-400' : 'text-gray-300'}
             />
           ))}
         </div>
@@ -106,7 +106,7 @@ export const AdminDashboardPage: React.FC = () => {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Link
           to="/admin/users"
-          className="block rounded-xl bg-gradient-to-br from-purple-600/20 to-purple-600/5 border border-purple-500/20 p-5 hover:border-purple-500/40 transition-colors"
+          className="block rounded-xl bg-gradient-to-br from-red-700/20 to-red-700/5 border border-red-600/20 p-5 hover:border-red-600/40 transition-colors"
         >
           <h3 className="font-semibold text-white">Manage Users</h3>
           <p className="mt-1 text-sm text-gray-400">
@@ -115,7 +115,7 @@ export const AdminDashboardPage: React.FC = () => {
         </Link>
         <Link
           to="/admin/audit-log"
-          className="block rounded-xl bg-gradient-to-br from-pink-600/20 to-pink-600/5 border border-pink-500/20 p-5 hover:border-pink-500/40 transition-colors"
+          className="block rounded-xl bg-gradient-to-br from-amber-600/20 to-amber-600/5 border border-pink-500/20 p-5 hover:border-pink-500/40 transition-colors"
         >
           <h3 className="font-semibold text-white">Audit Log</h3>
           <p className="mt-1 text-sm text-gray-400">Review admin actions.</p>

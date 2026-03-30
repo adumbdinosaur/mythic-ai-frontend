@@ -79,7 +79,7 @@ function EditUserModal({
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600"
           >
             {ROLES.map((r) => (
               <option key={r} value={r} className="bg-gray-900">
@@ -95,7 +95,7 @@ function EditUserModal({
           <select
             value={tier}
             onChange={(e) => setTier(e.target.value)}
-            className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600"
           >
             {TIERS.map((t) => (
               <option key={t} value={t} className="bg-gray-900">
@@ -111,7 +111,7 @@ function EditUserModal({
             type="checkbox"
             checked={active}
             onChange={(e) => setActive(e.target.checked)}
-            className="h-4 w-4 rounded border-white/20 bg-white/5 text-purple-600 focus:ring-purple-500"
+            className="h-4 w-4 rounded border-white/20 bg-white/5 text-red-700 focus:ring-red-600"
           />
           <span className="text-sm text-gray-300">Account active</span>
         </label>

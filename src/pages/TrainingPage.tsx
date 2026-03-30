@@ -126,7 +126,7 @@ export const TrainingPage: React.FC = () => {
                     className={[
                       'px-3 py-1.5 rounded-lg text-sm border transition-colors',
                       selectedPreset?.name === p.name
-                        ? 'bg-purple-600/30 border-purple-500 text-purple-300'
+                        ? 'bg-red-700/30 border-red-600 text-red-300'
                         : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-white',
                     ].join(' ')}
                   >
@@ -162,7 +162,7 @@ export const TrainingPage: React.FC = () => {
                   id="model-select"
                   value={config.model_name}
                   onChange={setField('model_name')}
-                  className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600"
                 >
                   {BASE_MODELS.map((m) => (
                     <option key={m} value={m}>{m.split('/').pop()}</option>
@@ -228,7 +228,7 @@ export const TrainingPage: React.FC = () => {
             <div
               className={[
                 'border-2 border-dashed rounded-lg p-6 text-center transition-colors',
-                file ? 'border-purple-500/50 bg-purple-500/5' : 'border-white/10 hover:border-white/20',
+                file ? 'border-red-600/50 bg-red-600/5' : 'border-white/10 hover:border-white/20',
               ].join(' ')}
             >
               <input
@@ -242,7 +242,7 @@ export const TrainingPage: React.FC = () => {
               />
               {file ? (
                 <div>
-                  <p className="text-sm text-purple-300 font-medium">{file.name}</p>
+                  <p className="text-sm text-red-300 font-medium">{file.name}</p>
                   <p className="text-xs text-gray-500 mt-1">{(file.size / 1024).toFixed(1)} KB</p>
                   <Button
                     type="button"
@@ -260,7 +260,7 @@ export const TrainingPage: React.FC = () => {
                   className="cursor-pointer"
                 >
                   <div className="text-gray-400 text-sm">
-                    <span className="text-purple-400 hover:underline">Choose a file</span>
+                    <span className="text-red-400 hover:underline">Choose a file</span>
                     {' '}or drag and drop
                   </div>
                   <p className="text-xs text-gray-600 mt-1">JSONL, JSON, TXT, CSV</p>
@@ -316,7 +316,7 @@ export const TrainingPage: React.FC = () => {
                           aria-valuemax={100}
                         >
                           <div
-                            className="h-full bg-purple-500 rounded-full transition-all"
+                            className="h-full bg-red-600 rounded-full transition-all"
                             style={{ width: `${job.progress}%` }}
                           />
                         </div>

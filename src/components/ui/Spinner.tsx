@@ -15,7 +15,7 @@ export const Spinner: React.FC<SpinnerProps> = ({
 }) => (
   <span role="status" aria-label={label} className="inline-flex">
     <svg
-      className={['animate-spin text-purple-500', sizeClasses[size], className].join(' ')}
+      className={['animate-spin text-red-500', sizeClasses[size], className].join(' ')}
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

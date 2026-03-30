@@ -67,7 +67,7 @@ function TierCard({
       className={[
         'rounded-2xl border p-6 flex flex-col gap-4 transition-colors',
         highlighted
-          ? 'border-purple-500 bg-purple-500/10'
+          ? 'border-red-600 bg-red-600/10'
           : isCurrent
           ? 'border-green-500/40 bg-green-500/5'
           : 'border-white/10 bg-white/5',

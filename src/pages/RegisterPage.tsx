@@ -56,7 +56,7 @@ export const RegisterPage: React.FC = () => {
   return (
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-red-500 to-amber-400 bg-clip-text text-transparent">
           Mythic AI
         </h1>
         <p className="mt-2 text-gray-400 text-sm">Create your account</p>
@@ -122,7 +122,7 @@ export const RegisterPage: React.FC = () => {
           Already have an account?{' '}
           <Link
             to="/login"
-            className="text-purple-400 hover:text-purple-300 font-medium underline underline-offset-2"
+            className="text-red-400 hover:text-red-300 font-medium underline underline-offset-2"
           >
             Sign in
           </Link>

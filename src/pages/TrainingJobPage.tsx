@@ -148,7 +148,7 @@ export const TrainingJobPage: React.FC = () => {
               aria-label={`Training progress: ${job.progress}%`}
             >
               <div
-                className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-500"
+                className="h-full bg-gradient-to-r from-red-600 to-pink-500 rounded-full transition-all duration-500"
                 style={{ width: `${job.progress}%` }}
               />
             </div>

@@ -66,9 +66,9 @@ const ClipboardIcon: React.FC<{ className?: string }> = ({ className }) => (
 );
 
 const navItems: NavItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: DashIcon },
+  { to: '/', label: 'Explore', icon: DashIcon },
   { to: '/characters', label: 'Characters', icon: UserCircleIcon },
-  { to: '/personas', label: 'Personas', icon: PersonaIcon },
+  // Personas hidden — merged into character chat settings
   // Chat & Demo hidden — restore when LoRA / demo work is prioritised
   // { to: '/chat', label: 'Chat', icon: ChatIcon },
   // { to: '/demos', label: 'Demo Models', icon: SparkleIcon },
@@ -100,7 +100,7 @@ export const Navbar: React.FC = () => {
     [
       'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150',
       isActive
-        ? 'bg-purple-600/20 text-purple-400'
+        ? 'bg-red-700/20 text-red-400'
         : 'text-gray-400 hover:text-white hover:bg-white/5',
     ].join(' ');
 
@@ -113,7 +113,7 @@ export const Navbar: React.FC = () => {
       >
         {/* Logo */}
         <div className="px-5 py-5 border-b border-white/10">
-          <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-red-500 to-amber-400 bg-clip-text text-transparent">
             Mythic AI
           </span>
         </div>
@@ -154,13 +154,13 @@ export const Navbar: React.FC = () => {
               <p className="text-sm font-medium text-white truncate">{user.username}</p>
               <p className="text-xs text-gray-500 truncate">{user.email}</p>
               <div className="mt-1 flex items-center gap-2">
-                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400">
+                <span className="text-xs font-medium px-2 py-0.5 rounded-full bg-red-700/20 text-red-400">
                   {TIER_LABELS[user.tier]}
                 </span>
                 {user.tier === 'free' && (
                   <NavLink
                     to="/subscription"
-                    className="text-xs text-purple-400 hover:text-purple-300 underline underline-offset-2"
+                    className="text-xs text-red-400 hover:text-red-300 underline underline-offset-2"
                   >
                     Upgrade
                   </NavLink>
@@ -179,7 +179,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Top Bar */}
       <header className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-gray-900 border-b border-white/10 flex items-center justify-between px-4 h-14">
-        <span className="text-lg font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+        <span className="text-lg font-bold bg-gradient-to-r from-red-500 to-amber-400 bg-clip-text text-transparent">
           Mythic AI
         </span>
         <button

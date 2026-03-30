@@ -48,7 +48,7 @@ function CharacterCard({
     <Card className="flex flex-col gap-3 hover:border-white/20 transition-colors group">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <h3 className="font-semibold text-white truncate group-hover:text-purple-300 transition-colors">
+          <h3 className="font-semibold text-white truncate group-hover:text-red-300 transition-colors">
             {character.name}
           </h3>
           {character.tagline && (
@@ -68,7 +68,7 @@ function CharacterCard({
 
       <div className="flex flex-wrap gap-1">
         {character.category && (
-          <span className="text-xs text-purple-400 bg-purple-400/10 rounded-full px-2 py-0.5">
+          <span className="text-xs text-red-400 bg-red-400/10 rounded-full px-2 py-0.5">
             {character.category}
           </span>
         )}
@@ -168,7 +168,7 @@ function CharacterFormModal({
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-300">Description</label>
           <textarea
-            className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150 min-h-[60px]"
+            className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors duration-150 min-h-[60px]"
             placeholder="Describe what this character is about..."
             value={description}
             onChange={(e) => setDescription(e.target.value)}
@@ -181,7 +181,7 @@ function CharacterFormModal({
             Personality / System Prompt <span className="text-red-400">*</span>
           </label>
           <textarea
-            className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150 min-h-[120px]"
+            className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors duration-150 min-h-[120px]"
             placeholder="You are Luna, an ancient necromancer who speaks in riddles..."
             value={personality}
             onChange={(e) => setPersonality(e.target.value)}
@@ -194,7 +194,7 @@ function CharacterFormModal({
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-300">Greeting Message</label>
           <textarea
-            className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150 min-h-[60px]"
+            className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors duration-150 min-h-[60px]"
             placeholder="*Luna adjusts her dark hood and fixes you with glowing eyes* Well, well... a visitor."
             value={greeting}
             onChange={(e) => setGreeting(e.target.value)}
@@ -207,7 +207,7 @@ function CharacterFormModal({
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-300">Category</label>
             <select
-              className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150"
+              className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors duration-150"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
             >
@@ -221,7 +221,7 @@ function CharacterFormModal({
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-300">Visibility</label>
             <select
-              className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150"
+              className="w-full rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors duration-150"
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as CharacterVisibility)}
             >
@@ -427,7 +427,7 @@ export function CharacterChatModal({
               {personas.map((p) => (
                 <button
                   key={p.id}
-                  className="text-left rounded-lg bg-white/5 border border-white/10 hover:border-purple-500/50 p-3 transition-colors"
+                  className="text-left rounded-lg bg-white/5 border border-white/10 hover:border-red-600/50 p-3 transition-colors"
                   onClick={() => startChat(p.id)}
                 >
                   <p className="text-sm font-medium text-white">{p.name}</p>
@@ -448,20 +448,20 @@ export function CharacterChatModal({
             <div className="rounded-lg bg-white/5 border border-white/10 p-4 flex flex-col gap-3">
               <p className="text-sm font-medium text-white">Quick-create a persona</p>
               <input
-                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600"
                 placeholder="Name"
                 value={quickName}
                 onChange={(e) => setQuickName(e.target.value)}
               />
               <textarea
-                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[50px] resize-none"
+                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 min-h-[50px] resize-none"
                 placeholder="Description (who is this persona?)"
                 value={quickDesc}
                 onChange={(e) => setQuickDesc(e.target.value)}
                 rows={2}
               />
               <textarea
-                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[50px] resize-none"
+                className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 min-h-[50px] resize-none"
                 placeholder="Personality (how they speak and behave)"
                 value={quickPersonality}
                 onChange={(e) => setQuickPersonality(e.target.value)}
@@ -516,12 +516,12 @@ export function CharacterChatModal({
                 className={[
                   'max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm whitespace-pre-wrap',
                   msg.role === 'user'
-                    ? 'bg-purple-600/30 text-white'
+                    ? 'bg-red-700/30 text-white'
                     : 'bg-white/5 text-gray-200',
                 ].join(' ')}
               >
                 {msg.content || (streaming && i === messages.length - 1 ? (
-                  <span className="inline-block w-2 h-4 bg-purple-400 animate-pulse rounded-sm" />
+                  <span className="inline-block w-2 h-4 bg-red-400 animate-pulse rounded-sm" />
                 ) : null)}
               </div>
             </div>
@@ -539,7 +539,7 @@ export function CharacterChatModal({
             step={512}
             value={contextWindow}
             onChange={(e) => setContextWindow(Number(e.target.value))}
-            className="flex-1 accent-purple-500 h-1"
+            className="flex-1 accent-red-600 h-1"
           />
         </div>
 
@@ -547,7 +547,7 @@ export function CharacterChatModal({
         <div className="flex gap-2 border-t border-white/10 pt-3">
           <textarea
             ref={inputRef}
-            className="flex-1 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-colors duration-150 resize-none"
+            className="flex-1 rounded-lg bg-white/5 border border-white/10 hover:border-white/20 px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-colors duration-150 resize-none"
             placeholder={`Message ${character.name}...`}
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -641,7 +641,7 @@ export const CharactersPage: React.FC = () => {
           onClick={() => setTab('mine')}
           className={[
             'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
-            tab === 'mine' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white',
+            tab === 'mine' ? 'bg-red-700 text-white' : 'text-gray-400 hover:text-white',
           ].join(' ')}
         >
           My Characters
@@ -650,7 +650,7 @@ export const CharactersPage: React.FC = () => {
           onClick={() => setTab('community')}
           className={[
             'px-4 py-1.5 rounded-md text-sm font-medium transition-colors',
-            tab === 'community' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white',
+            tab === 'community' ? 'bg-red-700 text-white' : 'text-gray-400 hover:text-white',
           ].join(' ')}
         >
           Community

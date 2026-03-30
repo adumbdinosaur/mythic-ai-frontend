@@ -65,7 +65,7 @@ export const AdminAuditLogPage: React.FC = () => {
             setActionFilter(e.target.value);
             setPage(0);
           }}
-          className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="w-full rounded-lg bg-white/5 border border-white/10 px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-red-600"
         >
           <option value="" className="bg-gray-900">All actions</option>
           {Object.entries(ACTION_LABELS).map(([val, label]) => (

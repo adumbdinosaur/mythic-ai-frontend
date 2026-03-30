@@ -268,6 +268,12 @@ export function CharacterChatModal({
   const [streaming, setStreaming] = useState(false);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [contextWindow, setContextWindow] = useState(Math.min(4096, maxContext));
+  const [temperature, setTemperature] = useState(0.7);
+  const [maxTokens, setMaxTokens] = useState(512);
+  const [topP, setTopP] = useState(0.9);
+  const [topK, setTopK] = useState(50);
+  const [repPenalty, setRepPenalty] = useState(1.1);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [personaId, setPersonaId] = useState<string | undefined>(undefined);
   const [step, setStep] = useState<'persona' | 'chat'>('persona');
   const [quickCreateOpen, setQuickCreateOpen] = useState(false);
@@ -354,6 +360,11 @@ export function CharacterChatModal({
       const stream = await charactersApi.chatStream(character.id, updated, {
         conversation_id: conversationId,
         persona_id: personaId,
+        max_tokens: maxTokens,
+        temperature,
+        top_p: topP,
+        top_k: topK,
+        repetition_penalty: repPenalty,
       });
       const reader = stream.getReader();
       const decoder = new TextDecoder();
@@ -529,18 +540,87 @@ export function CharacterChatModal({
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Context window slider */}
-        <div className="flex items-center gap-3 border-t border-white/10 pt-2 pb-2">
-          <label className="text-xs text-gray-400 whitespace-nowrap">Context: {contextWindow.toLocaleString()}</label>
-          <input
-            type="range"
-            min={512}
-            max={maxContext}
-            step={512}
-            value={contextWindow}
-            onChange={(e) => setContextWindow(Number(e.target.value))}
-            className="flex-1 accent-red-600 h-1"
-          />
+        {/* Settings toggle */}
+        <div className="border-t border-white/10 pt-2 pb-1">
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-300 transition-colors"
+          >
+            <svg className={`h-3.5 w-3.5 transition-transform ${settingsOpen ? "rotate-90" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+            Generation Settings
+          </button>
+
+          {settingsOpen && (
+            <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <label className="text-gray-400">Temperature</label>
+                  <span className="text-gray-600 cursor-help" title="Controls randomness. Lower = more focused, higher = more creative. Default: 0.7">&#9432;</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="range" min={0} max={2} step={0.05} value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className="flex-1 accent-red-600 h-1" />
+                  <span className="text-gray-400 w-8 text-right">{temperature.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <label className="text-gray-400">Max Tokens</label>
+                  <span className="text-gray-600 cursor-help" title="Maximum length of the response. Higher = longer replies. Default: 512">&#9432;</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="range" min={64} max={2048} step={64} value={maxTokens} onChange={(e) => setMaxTokens(Number(e.target.value))} className="flex-1 accent-red-600 h-1" />
+                  <span className="text-gray-400 w-10 text-right">{maxTokens}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <label className="text-gray-400">Top P</label>
+                  <span className="text-gray-600 cursor-help" title="Nucleus sampling. Lower = only most likely words, higher = more variety. Default: 0.9">&#9432;</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="range" min={0} max={1} step={0.05} value={topP} onChange={(e) => setTopP(Number(e.target.value))} className="flex-1 accent-red-600 h-1" />
+                  <span className="text-gray-400 w-8 text-right">{topP.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <label className="text-gray-400">Top K</label>
+                  <span className="text-gray-600 cursor-help" title="Limits word choices to top K options. Lower = more predictable. Default: 50">&#9432;</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="range" min={1} max={100} step={1} value={topK} onChange={(e) => setTopK(Number(e.target.value))} className="flex-1 accent-red-600 h-1" />
+                  <span className="text-gray-400 w-8 text-right">{topK}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <label className="text-gray-400">Repetition Penalty</label>
+                  <span className="text-gray-600 cursor-help" title="Discourages repeating words. Higher = less repetition. Default: 1.1">&#9432;</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="range" min={1} max={2} step={0.05} value={repPenalty} onChange={(e) => setRepPenalty(Number(e.target.value))} className="flex-1 accent-red-600 h-1" />
+                  <span className="text-gray-400 w-8 text-right">{repPenalty.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-1">
+                  <label className="text-gray-400">Context Window</label>
+                  <span className="text-gray-600 cursor-help" title="How much conversation history to include. Higher = better memory but slower. Default: 4096">&#9432;</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <input type="range" min={512} max={maxContext} step={512} value={contextWindow} onChange={(e) => setContextWindow(Number(e.target.value))} className="flex-1 accent-red-600 h-1" />
+                  <span className="text-gray-400 w-12 text-right">{contextWindow.toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Input */}

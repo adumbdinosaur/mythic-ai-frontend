@@ -29,7 +29,7 @@ export const charactersApi = {
   delete: (id: string) => api.delete(`/api/v1/characters/${encodeURIComponent(id)}`),
 
   /** SSE-stream a chat with a character. */
-  chatStream: async (characterId: string, messages: ChatMessage[], opts?: { max_tokens?: number; temperature?: number; conversation_id?: string; persona_id?: string }) => {
+  chatStream: async (characterId: string, messages: ChatMessage[], opts?: { max_tokens?: number; temperature?: number; top_p?: number; top_k?: number; repetition_penalty?: number; conversation_id?: string; persona_id?: string }) => {
     const token = getStoredToken();
     const baseUrl = import.meta.env.VITE_API_URL ?? 'http://localhost:8000';
 
@@ -44,6 +44,9 @@ export const charactersApi = {
         stream: true,
         max_tokens: opts?.max_tokens ?? 512,
         temperature: opts?.temperature ?? 0.7,
+        ...(opts?.top_p != null ? { top_p: opts.top_p } : {}),
+        ...(opts?.top_k != null ? { top_k: opts.top_k } : {}),
+        ...(opts?.repetition_penalty != null ? { repetition_penalty: opts.repetition_penalty } : {}),
         ...(opts?.conversation_id ? { conversation_id: opts.conversation_id } : {}),
         ...(opts?.persona_id ? { persona_id: opts.persona_id } : {}),
       }),

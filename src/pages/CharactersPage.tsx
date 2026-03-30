@@ -10,6 +10,7 @@ import { Button } from '../components/ui/Button';
 import { Spinner } from '../components/ui/Spinner';
 import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
+import { TagInput } from '../components/ui/TagInput';
 import type { Character, CharacterCreate, CharacterVisibility, ChatMessage, PersonaCreate } from '../types';
 import { useAuthStore } from '../stores/authStore';
 import type { Tier } from '../types';
@@ -121,7 +122,7 @@ function CharacterFormModal({
   const [personality, setPersonality] = useState(initial?.personality ?? '');
   const [greeting, setGreeting] = useState(initial?.greeting ?? '');
   const [category, setCategory] = useState(initial?.category ?? '');
-  const [tagsStr, setTagsStr] = useState((initial?.tags ?? []).join(', '));
+  const [tags, setTags] = useState<string[]>(initial?.tags ?? []);
   const [visibility, setVisibility] = useState<CharacterVisibility>(initial?.visibility ?? 'private');
   const [avatarUrl, setAvatarUrl] = useState(initial?.avatar_url ?? '');
 
@@ -134,7 +135,7 @@ function CharacterFormModal({
       setPersonality(initial?.personality ?? '');
       setGreeting(initial?.greeting ?? '');
       setCategory(initial?.category ?? '');
-      setTagsStr((initial?.tags ?? []).join(', '));
+      setTags(initial?.tags ?? []);
       setVisibility(initial?.visibility ?? 'private');
       setAvatarUrl(initial?.avatar_url ?? '');
     }
@@ -142,10 +143,6 @@ function CharacterFormModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const tags = tagsStr
-      .split(',')
-      .map((t) => t.trim())
-      .filter(Boolean);
     onSubmit({
       name,
       tagline: tagline || undefined,
@@ -233,7 +230,7 @@ function CharacterFormModal({
           </div>
         </div>
 
-        <Input label="Tags" placeholder="anime, necromancer, dark (comma-separated)" value={tagsStr} onChange={(e) => setTagsStr(e.target.value)} />
+        <TagInput label="Tags" tags={tags} onChange={setTags} placeholder="Type a tag and press Enter" />
 
         <Input label="Avatar URL" placeholder="https://..." value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} />
 
@@ -524,17 +521,42 @@ export function CharacterChatModal({
           )}
           {messages.map((msg, i) => (
             <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className={[
-                  'max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm whitespace-pre-wrap',
-                  msg.role === 'user'
-                    ? 'bg-red-900/40 text-gray-100 leading-relaxed'
-                    : 'bg-gray-800/80 text-gray-100 leading-relaxed',
-                ].join(' ')}
-              >
-                {msg.content ? <MarkdownMessage content={msg.content} className="prose-sm" /> : (streaming && i === messages.length - 1 ? (
-                  <span className="inline-block w-2 h-4 bg-red-400 animate-pulse rounded-sm" />
-                ) : null)}
+              <div className="flex flex-col max-w-[80%]">
+                {msg.role !== 'user' && i === 0 && (
+                  <span className="text-xs text-red-400 font-medium mb-1 ml-1">{character?.name}</span>
+                )}
+                <div
+                  className={[
+                    'rounded-xl px-3.5 py-2.5 text-sm',
+                    msg.role === 'user'
+                      ? 'bg-red-900/50 text-gray-50 leading-relaxed border border-red-800/30'
+                      : 'bg-white/[0.07] text-gray-100 leading-relaxed border border-white/[0.06]',
+                  ].join(' ')}
+                >
+                  {msg.content ? <MarkdownMessage content={msg.content} className="prose-sm" /> : (streaming && i === messages.length - 1 ? (
+                    <span className="inline-block w-2 h-4 bg-red-400 animate-pulse rounded-sm" />
+                  ) : null)}
+                </div>
+                {msg.role === 'assistant' && !streaming && msg.content && (
+                  <button
+                    onClick={() => {
+                      const prevMessages = messages.slice(0, i);
+                      setMessages(prevMessages);
+                      setInput('');
+                      const lastUserMsg = [...prevMessages].reverse().find(m => m.role === 'user');
+                      if (lastUserMsg) {
+                        setInput(lastUserMsg.content);
+                      }
+                    }}
+                    className="self-start mt-1 ml-1 text-xs text-gray-500 hover:text-gray-300 transition-colors flex items-center gap-1"
+                    title="Retry from this point"
+                  >
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Retry
+                  </button>
+                )}
               </div>
             </div>
           ))}

@@ -15,7 +15,7 @@ export const MarkdownMessage: React.FC<MarkdownMessageProps> = ({ content, class
         components={{
           p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
           strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
-          em: ({ children }) => <em className="italic text-gray-200">{children}</em>,
+          em: ({ children }) => <em className="italic text-amber-300/90">{children}</em>,
           code: ({ className: codeClass, children, ...props }) => {
             const isBlock = codeClass?.includes('language-');
             if (isBlock) {

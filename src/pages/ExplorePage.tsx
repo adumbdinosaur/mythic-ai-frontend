@@ -55,15 +55,23 @@ function ExploreCard({ character, onChat }: { character: Character; onChat: () =
       )}
 
       <div className="flex items-center justify-between mt-auto pt-2 border-t border-white/5">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          {(character.tags ?? []).some((t) => [nsfw, limitless].includes(t.toLowerCase())) && (
+            <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold bg-red-600/30 text-red-400 ring-1 ring-red-500/30">
+              NSFW
+            </span>
+          )}
           {character.category && (
             <Badge variant="purple">{character.category}</Badge>
           )}
-          {(character.tags ?? []).slice(0, 2).map((tag) => (
-            <Badge key={tag} variant="default">{tag}</Badge>
-          ))}
+          {(character.tags ?? [])
+            .filter((t) => ![nsfw, limitless].includes(t.toLowerCase()))
+            .slice(0, 2)
+            .map((tag) => (
+              <Badge key={tag} variant="default">{tag}</Badge>
+            ))}
         </div>
-        <span className="text-xs text-gray-600">
+        <span className="text-xs text-gray-600 shrink-0">
           {character.chat_count > 0 && `${character.chat_count} chats`}
         </span>
       </div>
@@ -152,6 +160,23 @@ export const ExplorePage: React.FC = () => {
             className="max-w-md mx-auto"
           />
 
+          <div className="flex items-center justify-center gap-2 mb-3">
+            {([all, sfw, nsfw] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setContentFilter(f)}
+                className={[
+                  px-4 py-1.5 rounded-full text-sm font-medium transition-colors,
+                  contentFilter === f
+                    ? f === nsfw ? bg-red-700 text-white : bg-gray-700 text-white
+                    : bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white,
+                ].join( )}
+              >
+                {f === all ? All : f === sfw ? SFW : 🔥 NSFW}
+              </button>
+            ))}
+          </div>
+
           <div className="flex flex-wrap items-center justify-center gap-2">
             {CATEGORIES.map((cat) => (
               <button
@@ -181,7 +206,13 @@ export const ExplorePage: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
-            {(characters ?? []).map((char) => (
+            {(characters ?? [])
+              .filter((char) => {
+                if (contentFilter === all) return true;
+                const isNsfw = (char.tags ?? []).some((t) => [nsfw, limitless].includes(t.toLowerCase()));
+                return contentFilter === nsfw ? isNsfw : !isNsfw;
+              })
+              .map((char) => (
               <ExploreCard
                 key={char.id}
                 character={char}

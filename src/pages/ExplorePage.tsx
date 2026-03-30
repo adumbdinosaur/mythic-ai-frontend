@@ -161,18 +161,18 @@ export const ExplorePage: React.FC = () => {
           />
 
           <div className="flex items-center justify-center gap-2 mb-3">
-            {([all, sfw, nsfw] as const).map((f) => (
+            {(['all', 'sfw', 'nsfw'] as const).map((f) => (
               <button
                 key={f}
                 onClick={() => setContentFilter(f)}
                 className={[
-                  px-4 py-1.5 rounded-full text-sm font-medium transition-colors,
+                  'px-4 py-1.5 rounded-full text-sm font-medium transition-colors',
                   contentFilter === f
-                    ? f === nsfw ? bg-red-700 text-white : bg-gray-700 text-white
-                    : bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white,
-                ].join( )}
+                    ? f === 'nsfw' ? 'bg-red-700 text-white' : 'bg-gray-700 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white',
+                ].join(' ')}
               >
-                {f === all ? All : f === sfw ? SFW : 🔥 NSFW}
+                {f === 'all' ? 'All' : f === 'sfw' ? 'SFW' : '🔥 NSFW'}
               </button>
             ))}
           </div>
@@ -208,9 +208,9 @@ export const ExplorePage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-12">
             {(characters ?? [])
               .filter((char) => {
-                if (contentFilter === all) return true;
-                const isNsfw = (char.tags ?? []).some((t) => [nsfw, limitless].includes(t.toLowerCase()));
-                return contentFilter === nsfw ? isNsfw : !isNsfw;
+                if (contentFilter === 'all') return true;
+                const isNsfw = (char.tags ?? []).some((t) => ['nsfw', 'limitless'].includes(t.toLowerCase()));
+                return contentFilter === 'nsfw' ? isNsfw : !isNsfw;
               })
               .map((char) => (
               <ExploreCard
